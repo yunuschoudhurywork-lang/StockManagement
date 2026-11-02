@@ -7,8 +7,14 @@ let mongod;
 beforeAll(async () => {
   mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
-  await mongoose.connect(uri);
-});
+  
+  // Configure Mongoose with longer timeout
+  mongoose.set('bufferTimeoutMS', 60000);
+  
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 60000,
+  });
+}, 90000); // 90 second timeout for MongoDB Memory Server download/start
 
 // Clear all collections before each test
 beforeEach(async () => {

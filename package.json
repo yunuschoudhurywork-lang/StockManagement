@@ -37,17 +37,20 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "globalSetup": "./tests/globalSetup.js",
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ],
-    "testTimeout": 30000,
+    "testTimeout": 60000,
     "collectCoverageFrom": [
       "**/*.js",
       "!**/node_modules/**",
       "!**/coverage/**",
       "!**/*.config.js",
       "!**/public/**",
-      "!**/tests/**"
+      "!**/tests/**",
+      "!server.js",
+      "!config/**"
     ]
   }
 }
