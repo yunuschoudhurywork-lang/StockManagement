@@ -1,29 +1,86 @@
-# Student Management CRUD
+# 📦 Stock Management System
 
-A simple full-stack internship demo project using:
+A modern Stock Management System designed to simplify inventory tracking, product management, and stock analytics for businesses.
 
-- Tailwind CSS CDN
-- Plain JavaScript
-- Node.js
-- Express.js
-- MongoDB Atlas
-- Mongoose
+> 🚧 **Project Status:** Under Development
 
-## Features
+---
 
-- Add a student
-- View all students
+## 📖 Overview
+
+The Stock Management System helps businesses efficiently manage their inventory by providing real-time stock tracking, product management, sales and purchase records, and insightful analytics.
+
+This project aims to build a scalable, secure, and user-friendly inventory management platform using modern web technologies.
+
+---
+
+## 🎓 Student Management Module (Demo Implementation)
+
+This repository currently contains a **Student Management CRUD application** as a demonstration/learning module that showcases the architecture and patterns that will be used in the full Stock Management System.
+
+### Current Implementation Stack:
+- **Frontend:** Tailwind CSS CDN, Vanilla JavaScript
+- **Backend:** Node.js, Express.js
+- **Database:** MongoDB Atlas with Mongoose ORM
+- **Architecture:** MVC Pattern with separation of concerns
+
+### ✅ Completed Features
+
+- ✅ **Phase 1: Security & Cleanup**
+  - Environment variable management (.env)
+  - Helmet security headers
+  - Proper CORS configuration
+  - Security documentation
+
+- ✅ **Phase 2: MVC Architecture**
+  - Modular code structure (config/, models/, controllers/, routes/, middleware/)
+  - Centralized error handling
+  - Async error wrapper utilities
+  - Clean separation of concerns
+
+- ✅ **Phase 3: Enhanced Validation**
+  - Backend validation with express-validator
+  - Frontend client-side validation
+  - HTML5 form validation attributes
+  - Comprehensive validation rules (email, phone, age, name, course)
+
+### Student Management Features
+
+- Create new students
+- View all students (sorted by newest first)
 - Edit student details
-- Delete a student
-- Store data in MongoDB Atlas
+- Delete students
+- MongoDB Atlas integration
+- Input validation (client & server)
+- Error handling with user-friendly messages
 
-## 1. Prerequisites
+---
+
+## ✨ Planned Features (Full Stock Management System)
+
+- 📊 Dashboard with inventory overview
+- 📦 Product Management (CRUD)
+- 🏷️ Category Management
+- 📥 Stock In Management
+- 📤 Stock Out Management
+- 📈 Analytics and Reporting
+- 👥 User Authentication & Authorization
+- 🔔 Low Stock Alerts
+- 📱 Responsive Design
+- 🔒 Role-based Access Control
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
 
 Install these before starting:
 
-- Node.js LTS from `https://nodejs.org`
-- A MongoDB Atlas account from `https://www.mongodb.com/cloud/atlas`
-- VS Code or any code editor
+- **Node.js LTS** from [https://nodejs.org](https://nodejs.org)
+- **MongoDB Atlas account** from [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+- **Git** for version control
+- **VS Code** or any code editor
 
 Check Node.js installation:
 
@@ -32,199 +89,246 @@ node -v
 npm -v
 ```
 
-## 2. Create MongoDB Atlas Database
+### 2. Create MongoDB Atlas Database
 
-1. Log in to MongoDB Atlas.
-2. Create a new project.
-3. Create a free `M0` cluster.
-4. Go to `Database Access`.
-5. Create a database user with username and password.
-6. Go to `Network Access`.
-7. Add your current IP address.
-8. For a classroom demo only, you may temporarily use `0.0.0.0/0` to allow access from anywhere.
-9. Go to `Database`.
-10. Click `Connect`.
-11. Select `Drivers`.
-12. Copy the MongoDB connection string.
+1. Log in to MongoDB Atlas
+2. Create a new project
+3. Create a free `M0` cluster
+4. Go to `Database Access`
+5. Create a database user with username and password
+6. Go to `Network Access`
+7. Add your current IP address
+   - ⚠️ For development only: You may use `0.0.0.0/0` (not recommended for production)
+8. Go to `Database`
+9. Click `Connect`
+10. Select `Drivers`
+11. Copy the MongoDB connection string
 
-The connection string looks like this:
-
-```text
-mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-```
-
-Add a database name before the question mark:
-
-```text
-mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/student_management?retryWrites=true&w=majority
-```
-
-Replace `<username>` and `<password>` with your Atlas database user details.
-
-## 3. Set Up Project
-
-Open a terminal in this folder:
+### 3. Clone Repository
 
 ```bash
-cd student-management-crud
+git clone https://github.com/yunuschoudhurywork-lang/StockManagement.git
+cd StockManagement/student-management-crud
 ```
 
-Install dependencies:
+### 4. Install Dependencies
 
 ```bash
 npm install
 ```
 
-Create a `.env` file:
+### 5. Configure Environment Variables
 
-```bash
-copy .env.example .env
-```
-
-On macOS or Linux, use:
-
-```bash
-cp .env.example .env
-```
-
-Open `.env` and paste your MongoDB Atlas connection string:
+Create a `.env` file in the project root (use `.env.example` as template):
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://yourUsername:yourPassword@cluster0.xxxxx.mongodb.net/student_management?retryWrites=true&w=majority
+MONGODB_URI=your_mongodb_connection_string_here
+CORS_ORIGIN=http://localhost:5000
 ```
 
-## 4. Run Project
+Replace `your_mongodb_connection_string_here` with your actual MongoDB Atlas connection string.
 
-For development:
+⚠️ **Security Note:** Never commit the `.env` file to version control. It's already in `.gitignore`.
 
+### 6. Start the Application
+
+**Development mode (with auto-reload):**
 ```bash
 npm run dev
 ```
 
-Or run normally:
-
+**Production mode:**
 ```bash
 npm start
 ```
 
-Open the app in your browser:
+The server will start at `http://localhost:5000`
 
-```text
-http://localhost:5000
+---
+
+## 📁 Project Structure
+
+```
+student-management-crud/
+├── config/
+│   └── database.js          # MongoDB connection configuration
+├── controllers/
+│   └── studentController.js # Business logic and request handlers
+├── middleware/
+│   ├── asyncHandler.js      # Async error wrapper utility
+│   ├── errorHandler.js      # Centralized error handling
+│   └── validator.js         # Input validation rules
+├── models/
+│   └── Student.js           # Mongoose schema and model
+├── routes/
+│   └── studentRoutes.js     # API route definitions
+├── public/
+│   ├── index.html           # Frontend UI
+│   └── app.js               # Frontend JavaScript logic
+├── .env                     # Environment variables (not in git)
+├── .env.example             # Environment template
+├── server.js                # Application entry point
+├── package.json             # Dependencies and scripts
+└── README.md                # Documentation
 ```
 
-## 5. API Routes
+---
 
-| Method | URL | Description |
-| --- | --- | --- |
-| GET | `/api/health` | Check API status |
-| GET | `/api/students` | Get all students |
-| POST | `/api/students` | Add a student |
-| PUT | `/api/students/:id` | Update a student |
-| DELETE | `/api/students/:id` | Delete a student |
+## 🔒 Validation Rules
 
-## 6. Student Data Format
+All student data is validated on multiple levels (HTML5, client-side JS, server-side):
 
+| Field | Rules |
+|-------|-------|
+| **Name** | Required, 2-100 characters, letters and spaces only |
+| **Email** | Required, valid email format, unique |
+| **Phone** | Required, exactly 10 digits, numeric only |
+| **Age** | Required, number between 16-100 |
+| **Course** | Required, 2-100 characters |
+
+---
+
+## 🛠️ API Endpoints
+
+### Health Check
+- `GET /api/health` - Check if API is running
+
+### Student Management
+- `GET /api/students` - Get all students (sorted by newest)
+- `POST /api/students` - Create a new student
+- `PUT /api/students/:id` - Update student by ID
+- `DELETE /api/students/:id` - Delete student by ID
+
+### Request/Response Examples
+
+**Create Student:**
 ```json
+POST /api/students
 {
-  "name": "Anita Sharma",
-  "email": "anita@example.com",
+  "name": "John Doe",
+  "email": "john@example.com",
   "course": "MERN Stack",
   "phone": "9876543210",
   "age": 21
 }
 ```
 
-## 7. Project Structure
-
-```text
-student-management-crud/
-  public/
-    index.html
-    app.js
-  .env.example
-  .gitignore
-  package.json
-  README.md
-  server.js
-```
-
-## 8. Classroom Demo Flow
-
-1. Explain that the browser sends requests using `fetch`.
-2. Show `public/app.js` for frontend JavaScript.
-3. Show Express routes in `server.js`.
-4. Show the Mongoose schema in `server.js`.
-5. Add one student from the UI.
-6. Refresh the page and show that data remains because it is stored in MongoDB Atlas.
-7. Edit the student.
-8. Delete the student.
-
-## 9. Common Issues
-
-### MongoDB connection error
-
-Check that:
-
-- The `.env` file exists.
-- `MONGODB_URI` is correct.
-- Username and password are correct.
-- Your IP address is allowed in MongoDB Atlas Network Access.
-
-### Port already in use
-
-Change the port in `.env`:
-
-```env
-PORT=5001
-```
-
-Then open:
-
-```text
-http://localhost:5001
-```
-
-### Tailwind styles not loading
-
-This project uses Tailwind from the CDN:
-
-```html
-<script src="https://cdn.tailwindcss.com"></script>
-```
-
-An internet connection is required for Tailwind styles to load.
-
-## 10. Validation Rules
-
-All student fields are validated on both the frontend (browser) and the backend (server). The server-side validation uses `express-validator` and always runs even if the client-side check is bypassed.
-
-### Field Rules
-
-| Field  | Rule                                | Example Valid        | Example Invalid     |
-|--------|-------------------------------------|----------------------|---------------------|
-| Name   | Required, 2-100 characters, letters and spaces only | Anita Sharma | John123, A |
-| Email  | Required, valid email format        | anita@example.com    | notanemail, missing@ |
-| Phone  | Required, exactly 10 numeric digits | 9876543210           | 98765, 98765abcde   |
-| Age    | Required, integer between 16 and 100 | 21                  | 15, 101, abc        |
-| Course | Required, 2-100 characters          | MERN Stack           | A (too short)        |
-
-### Error Response Format
-
-When validation fails, the API returns HTTP 400 with:
-
+**Response:**
 ```json
 {
-  "message": "Phone number must be exactly 10 digits, Age must be between 16 and 100",
-  "errors": [
-    { "field": "phone", "message": "Phone number must be exactly 10 digits" },
-    { "field": "age",   "message": "Age must be between 16 and 100" }
-  ]
+  "_id": "507f1f77bcf86cd799439011",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "course": "MERN Stack",
+  "phone": "9876543210",
+  "age": 21,
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-15T10:30:00.000Z"
 }
 ```
 
-### Dependencies Added
+---
 
-- `express-validator` — middleware-based validation for Express.js
+## 🧪 Testing
 
+To test the validation:
+
+1. Start the server: `npm start`
+2. Open `http://localhost:5000` in browser
+3. Try these test cases:
+
+**Invalid Email:**
+- Input: `john@` → Error: "Please enter a valid email address"
+
+**Invalid Phone:**
+- Input: `123` → Error: "Phone number must be exactly 10 digits"
+
+**Invalid Age:**
+- Input: `15` → Error: "Age must be between 16 and 100"
+
+**Invalid Name:**
+- Input: `John123` → Error: "Name must contain only letters"
+
+---
+
+## 🔐 Security Features
+
+- ✅ **Helmet.js** - Security headers (XSS, clickjacking protection)
+- ✅ **CORS** - Environment-based origin whitelisting
+- ✅ **Input Validation** - express-validator with comprehensive rules
+- ✅ **Environment Variables** - Sensitive data not in code
+- ✅ **Error Handling** - Safe error messages (no sensitive data exposure)
+- ⚠️ **Authentication** - Coming in Phase 9
+
+---
+
+## 🐛 Troubleshooting
+
+### Server won't start
+- Check if MongoDB URI is correct in `.env`
+- Verify MongoDB Atlas network access allows your IP
+- Check if port 5000 is available: `netstat -ano | findstr :5000`
+
+### Database connection fails
+- Verify username/password in connection string
+- Check MongoDB Atlas cluster is running
+- Ensure IP whitelist includes your address
+
+### CORS errors in browser
+- Check `CORS_ORIGIN` in `.env` matches your frontend URL
+- Clear browser cache
+- Check browser console for specific error messages
+
+---
+
+## 📚 Dependencies
+
+### Production Dependencies:
+- `express` - Web framework
+- `mongoose` - MongoDB ODM
+- `dotenv` - Environment variable management
+- `cors` - Cross-Origin Resource Sharing
+- `helmet` - Security headers
+- `express-validator` - Input validation
+
+### Development Dependencies:
+- `nodemon` - Auto-restart server on file changes
+
+---
+
+## 🤝 Contributing
+
+This is currently a learning/development project. Contributions and suggestions are welcome!
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+## 👨‍💻 Author
+
+**Yunus Choudhury**
+- GitHub: [@yunuschoudhurywork-lang](https://github.com/yunuschoudhurywork-lang)
+
+---
+
+## 📝 Project Roadmap
+
+- [x] Phase 1: Security & Cleanup
+- [x] Phase 2: MVC Architecture Refactoring  
+- [x] Phase 3: Enhanced Validation
+- [ ] Phase 4: Testing Infrastructure
+- [ ] Phase 5: Additional Features (Pagination, Search, Filtering)
+- [ ] Phase 6: Production Readiness
+- [ ] Phase 7: Database Migration (Optional)
+- [ ] Phase 8: DevOps & Deployment
+- [ ] Phase 9: Authentication & Authorization
+- [ ] Phase 10: Full Stock Management Features
+
+---
+
+**Last Updated:** November 2026
