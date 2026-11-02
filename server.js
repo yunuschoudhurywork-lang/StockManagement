@@ -42,6 +42,11 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ message: 'Student Management API is running' });
+});
+
 // API routes
 app.use('/api/students', studentRoutes);
 

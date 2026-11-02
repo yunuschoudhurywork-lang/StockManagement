@@ -27,7 +27,6 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     return res.status(400).json({
-      success: false,
       message: getValidationMessage(err)
     });
   }
@@ -35,7 +34,6 @@ const errorHandler = (err, req, res, next) => {
   // Mongoose CastError (invalid ObjectId)
   if (err.name === 'CastError') {
     return res.status(400).json({
-      success: false,
       message: 'Invalid student id'
     });
   }
@@ -43,14 +41,12 @@ const errorHandler = (err, req, res, next) => {
   // MongoDB duplicate key error
   if (err.code === 11000) {
     return res.status(400).json({
-      success: false,
       message: 'A student with this email already exists'
     });
   }
 
   // Default error
   res.status(err.statusCode || 500).json({
-    success: false,
     message: err.message || 'Something went wrong'
   });
 };

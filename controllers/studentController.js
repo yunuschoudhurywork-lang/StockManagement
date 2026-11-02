@@ -2,22 +2,17 @@ const Student = require('../models/Student');
 const asyncHandler = require('../middleware/asyncHandler');
 
 /**
- * @desc    Health check endpoint
- * @route   GET /api/health
- * @access  Public
- */
-const getHealth = asyncHandler(async (req, res) => {
-  res.json({ message: 'Student Management API is running' });
-});
-
-/**
  * @desc    Get all students
  * @route   GET /api/students
  * @access  Public
  */
 const getAllStudents = asyncHandler(async (req, res) => {
-  const students = await Student.find().sort({ createdAt: -1 });
-  res.json(students);
+  try {
+    const students = await Student.find().sort({ createdAt: -1 });
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch students' });
+  }
 });
 
 /**
@@ -64,7 +59,6 @@ const deleteStudent = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  getHealth,
   getAllStudents,
   createStudent,
   updateStudent,
