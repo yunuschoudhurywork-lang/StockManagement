@@ -24,6 +24,14 @@ const errorHandler = (err, req, res, next) => {
   // Log error for debugging
   console.error('Error:', err.message);
 
+  // express-validator errors (already handled in validate middleware, but guard here too)
+  if (err.type === 'validation') {
+    return res.status(400).json({
+      message: err.message,
+      errors: err.errors || []
+    });
+  }
+
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     return res.status(400).json({
