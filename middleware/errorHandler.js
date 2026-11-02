@@ -40,16 +40,16 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Mongoose CastError (invalid ObjectId)
-  if (err.name === 'CastError') {
+  if (err.name === 'CastError' && err.kind === 'ObjectId') {
     return res.status(400).json({
-      message: 'Invalid student id'
+      message: 'Invalid student ID format'
     });
   }
 
-  // MongoDB duplicate key error
+  // MongoDB duplicate key error (duplicate email)
   if (err.code === 11000) {
     return res.status(400).json({
-      message: 'A student with this email already exists'
+      message: 'Email already exists'
     });
   }
 

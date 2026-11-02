@@ -230,7 +230,7 @@ POST /api/students
 
 ---
 
-## 🧪 Testing
+## 🧪 Manual Testing
 
 To test the validation:
 
@@ -249,6 +249,41 @@ To test the validation:
 
 **Invalid Name:**
 - Input: `John123` → Error: "Name must contain only letters"
+
+---
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests only
+npm run test:unit
+
+# Run integration tests only
+npm run test:integration
+
+# Run tests in watch mode (auto-rerun on changes)
+npm run test:watch
+
+# Generate coverage report
+npm test
+```
+
+### Coverage Goal
+
+- **Target:** >80% overall code coverage
+- **View Report:** After running tests, open `coverage/lcov-report/index.html` in your browser
+
+### Test Configuration
+
+- **Framework:** Jest
+- **API Testing:** Supertest
+- **Database:** MongoDB Memory Server (in-memory for tests)
+- **Test Files:** Located in `__tests__/` directory
 
 ---
 
