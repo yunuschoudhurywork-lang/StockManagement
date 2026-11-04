@@ -643,11 +643,13 @@ document.querySelectorAll('.nav-link').forEach(link => {
     
     // Handle navigation
     if (target === 'dashboard') {
-      // Scroll to top to show dashboard
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showDashboardView();
     } else if (target === 'students') {
+      showDashboardView();
       // Scroll to student table
       elements.tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (target === 'reports') {
+      showReportsView();
     } else if (target === 'settings') {
       // Show settings info
       alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
@@ -657,3 +659,123 @@ document.querySelectorAll('.nav-link').forEach(link => {
 
 // Initialize
 loadStudents();
+
+// ========== Reports & Analytics Functions ==========
+
+// Load reports data from API
+async function loadReports() {
+  try {
+    const [overview, courseDistribution, ageDistribution, enrollmentTrends] = await Promise.all([
+      fetch('/api/reports/overview').then(res => res.json()),
+      fetch('/api/reports/course-distribution').then(res => res.json()),
+      fetch('/api/reports/age-distribution').then(res => res.json()),
+      fetch('/api/reports/enrollment-trends').then(res => res.json())
+    ]);
+
+    return {
+      overview,
+      courseDistribution,
+      ageDistribution,
+      enrollmentTrends
+    };
+  } catch (error) {
+    showToast('Failed to load reports data', 'error');
+    throw error;
+  }
+}
+
+// Show dashboard view
+function showDashboardView() {
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView.classList.remove('hidden');
+  document.getElementById('reportsView').classList.add('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Show reports view
+async function showReportsView() {
+  // Hide dashboard view and show reports view
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView.classList.add('hidden');
+  document.getElementById('reportsView').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Load and render reports
+  try {
+    const reports = await loadReports();
+    renderReportsView(reports);
+  } catch (error) {
+    console.error('Error loading reports:', error);
+  }
+}
+
+// Render reports view with data
+function renderReportsView(reports) {
+  // Update overview statistics
+  document.getElementById('reportTotalStudents').textContent = reports.overview.totalStudents;
+  document.getElementById('reportTotalCourses').textContent = reports.overview.totalCourses;
+  document.getElementById('reportAverageAge').textContent = reports.overview.avgAge;
+
+  // Render course distribution chart
+  const courseChart = document.getElementById('courseDistributionChart');
+  if (reports.courseDistribution.length === 0) {
+    courseChart.innerHTML = '<p class="text-secondary-text text-sm">No course data available</p>';
+  } else {
+    courseChart.innerHTML = reports.courseDistribution.map(item => `
+      <div>
+        <div class="flex justify-between mb-2">
+          <span class="text-primary-text font-bold text-sm">${escapeHtml(item.course)}</span>
+          <span class="text-secondary-text text-sm">${item.count} students (${item.percentage}%)</span>
+        </div>
+        <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+          <div class="h-full bg-accent transition-all duration-500" style="width: ${item.percentage}%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render age distribution chart
+  const ageChart = document.getElementById('ageDistributionChart');
+  if (reports.ageDistribution.length === 0) {
+    ageChart.innerHTML = '<p class="text-secondary-text text-sm">No age data available</p>';
+  } else {
+    const maxCount = Math.max(...reports.ageDistribution.map(item => item.count));
+    ageChart.innerHTML = reports.ageDistribution.map(item => {
+      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+      return `
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-primary-text font-bold text-sm">${escapeHtml(item.range)} years</span>
+            <span class="text-secondary-text text-sm">${item.count} students</span>
+          </div>
+          <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+            <div class="h-full bg-accent transition-all duration-500" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render enrollment trends chart
+  const trendsChart = document.getElementById('enrollmentTrendsChart');
+  if (reports.enrollmentTrends.length === 0) {
+    trendsChart.innerHTML = '<p class="text-secondary-text text-sm">No enrollment data available for the last 6 months</p>';
+  } else {
+    const maxCount = Math.max(...reports.enrollmentTrends.map(item => item.count));
+    trendsChart.innerHTML = reports.enrollmentTrends.map(item => {
+      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+      return `
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-primary-text font-bold text-sm">${escapeHtml(item.month)}</span>
+            <span class="text-secondary-text text-sm">${item.count} enrollments</span>
+          </div>
+          <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+            <div class="h-full bg-accent transition-all duration-500" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+

@@ -48,6 +48,11 @@
             </li>
             <li>
               <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Reports</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
                 <span>Settings</span>
               </a>
             </li>
@@ -275,6 +280,63 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports View (Hidden by default) -->
+      <div id="reportsView" class="p-6 hidden">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <h1 class="text-5xl font-black uppercase tracking-tight text-primary-text md:text-6xl">
+            Reports & Analytics
+          </h1>
+          <div class="mt-2 h-2 w-32 bg-accent"></div>
+          <p class="mt-4 text-secondary-text text-sm">View student statistics, course distribution, and enrollment trends.</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Total Students Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Students</p>
+            <p id="reportTotalStudents" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+
+          <!-- Total Courses Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Courses</p>
+            <p id="reportTotalCourses" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+
+          <!-- Average Age Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Average Age</p>
+            <p id="reportAverageAge" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+        </div>
+
+        <!-- Course Distribution Chart -->
+        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Course Distribution</h2>
+          <div id="courseDistributionChart" class="space-y-4">
+            <!-- Chart bars will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Age Distribution Chart -->
+        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Age Distribution</h2>
+          <div id="ageDistributionChart" class="space-y-4">
+            <!-- Chart bars will be rendered here -->
+          </div>
+        </div>
+
+        <!-- Enrollment Trends Chart -->
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Enrollment Trends (Last 6 Months)</h2>
+          <div id="enrollmentTrendsChart" class="space-y-4">
+            <!-- Trends will be rendered here -->
           </div>
         </div>
       </div>
