@@ -3,78 +3,354 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Management CRUD</title>
+    <title>Student Management Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'primary-bg': '#111111',
+              'secondary-bg': '#1A1A1A',
+              'accent': '#FFD83D',
+              'primary-text': '#F5F2EA',
+              'secondary-text': '#B8B5AC',
+              'border-color': '#E8E4DA',
+              'success': '#34D399',
+              'error': '#FF6B5E'
+            }
+          }
+        }
+      }
+    </script>
   </head>
-  <body class="min-h-screen bg-slate-100 text-slate-900">
-    <main class="mx-auto max-w-6xl px-4 py-8">
-      <section class="mb-6">
-        <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Internship Demo</p>
-        <h1 class="mt-2 text-3xl font-bold">Student Management</h1>
-        <p class="mt-2 max-w-2xl text-slate-600">
-          Simple CRUD app using Tailwind CSS CDN, plain JavaScript, Node.js, Express.js, and MongoDB Atlas.
-        </p>
-      </section>
+  <body class="min-h-screen bg-primary-bg text-primary-text font-sans">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 z-40 h-full w-64 bg-secondary-bg border-r-2 border-border-color transition-transform duration-300 -translate-x-full md:translate-x-0">
+      <div class="flex h-full flex-col">
+        <!-- Logo/Brand -->
+        <div class="border-b-2 border-border-color p-6">
+          <h1 class="text-2xl font-black uppercase tracking-tight text-accent">Student<br/>Management</h1>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 p-4">
+          <ul class="space-y-2">
+            <li>
+              <a href="#" class="nav-link active flex items-center gap-3 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold text-primary-bg uppercase text-sm tracking-wide transition-colors duration-200">
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Students</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
 
-      <section class="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <form id="studentForm" class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 id="formTitle" class="text-xl font-semibold">Add Student</h2>
-            <button
-              id="cancelEditBtn"
-              type="button"
-              class="hidden rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+    <!-- Mobile Menu Button -->
+    <button id="menuToggle" class="fixed left-4 top-4 z-50 md:hidden rounded-sm border-2 border-accent bg-accent p-2 text-primary-bg">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+      <!-- Header -->
+      <header class="border-b-2 border-border-color bg-secondary-bg px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Student Management System</p>
+            <h2 class="mt-1 text-sm font-medium text-primary-text">Welcome back</h2>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-sm border-2 border-accent bg-accent flex items-center justify-center font-black text-primary-bg">
+              A
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="p-6">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <h1 class="text-5xl font-black uppercase tracking-tight text-primary-text md:text-6xl">
+            Dashboard
+          </h1>
+          <div class="mt-2 h-2 w-32 bg-accent"></div>
+          <p class="mt-4 text-secondary-text text-sm">Manage student records, view statistics, and track enrollment data.</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Total Students Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Students</p>
+            <p id="totalStudents" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+
+          <!-- Total Courses Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Courses</p>
+            <p id="totalCourses" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+
+          <!-- Average Age Card -->
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1">
+            <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Average Age</p>
+            <p id="averageAge" class="mt-2 text-4xl font-black text-accent">0</p>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <!-- Search Input -->
+            <div class="lg:col-span-2">
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Search</label>
+              <input 
+                id="searchInput" 
+                type="text" 
+                placeholder="Search by name or email..." 
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+              />
+            </div>
+
+            <!-- Course Filter -->
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Course</label>
+              <select 
+                id="courseFilter" 
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text outline-none focus:border-accent transition-colors duration-200"
+              >
+                <option value="">All Courses</option>
+              </select>
+            </div>
+
+            <!-- Per Page Selector -->
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Per Page</label>
+              <select 
+                id="perPageSelect" 
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text outline-none focus:border-accent transition-colors duration-200"
+              >
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Age Range Filters -->
+          <div class="mt-4 grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Min Age</label>
+              <input 
+                id="minAgeInput" 
+                type="number" 
+                placeholder="16" 
+                min="16" 
+                max="100"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+              />
+            </div>
+
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Max Age</label>
+              <input 
+                id="maxAgeInput" 
+                type="number" 
+                placeholder="100" 
+                min="16" 
+                max="100"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+              />
+            </div>
+
+            <!-- Clear & Add Buttons -->
+            <div class="flex items-end gap-2 md:col-span-1 lg:col-span-4">
+              <button 
+                id="clearFiltersBtn" 
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              >
+                Clear Filters
+              </button>
+              <button 
+                id="addStudentBtn" 
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              >
+                + Add Student
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden">
+          <!-- Loading State -->
+          <div id="loadingState" class="hidden p-12 text-center">
+            <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
+            <p class="mt-4 text-secondary-text uppercase tracking-wide font-bold text-sm">Loading...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden p-12 text-center">
+            <p class="text-2xl font-black uppercase text-secondary-text">No Students Found</p>
+            <p class="mt-2 text-secondary-text text-sm">Try adjusting your search or filters</p>
+          </div>
+
+          <!-- Table -->
+          <div id="tableContainer" class="overflow-x-auto">
+            <table class="w-full min-w-[720px] border-collapse text-left">
+              <thead>
+                <tr class="border-b-2 border-border-color bg-primary-bg">
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text cursor-pointer hover:text-accent transition-colors duration-200" data-sort="name">
+                    <div class="flex items-center gap-2">
+                      Name
+                      <span class="sort-indicator text-accent opacity-0">↓</span>
+                    </div>
+                  </th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text cursor-pointer hover:text-accent transition-colors duration-200" data-sort="email">
+                    <div class="flex items-center gap-2">
+                      Email
+                      <span class="sort-indicator text-accent opacity-0">↓</span>
+                    </div>
+                  </th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text cursor-pointer hover:text-accent transition-colors duration-200" data-sort="course">
+                    <div class="flex items-center gap-2">
+                      Course
+                      <span class="sort-indicator text-accent opacity-0">↓</span>
+                    </div>
+                  </th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text cursor-pointer hover:text-accent transition-colors duration-200" data-sort="age">
+                    <div class="flex items-center gap-2">
+                      Age
+                      <span class="sort-indicator text-accent opacity-0">↓</span>
+                    </div>
+                  </th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTable"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div id="paginationContainer" class="border-t-2 border-border-color bg-primary-bg px-4 py-4">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <!-- Info Text -->
+              <p id="paginationInfo" class="text-sm text-secondary-text">
+                Showing <span id="showingStart">0</span>-<span id="showingEnd">0</span> of <span id="totalCount">0</span> students
+              </p>
+
+              <!-- Pagination Buttons -->
+              <div class="flex items-center gap-2">
+                <button 
+                  id="prevPageBtn" 
+                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-color disabled:hover:bg-transparent disabled:hover:text-primary-text"
+                  disabled
+                >
+                  ← Previous
+                </button>
+                <span id="pageIndicator" class="px-4 py-2 text-sm font-bold text-secondary-text">
+                  Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span>
+                </span>
+                <button 
+                  id="nextPageBtn" 
+                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-color disabled:hover:bg-transparent disabled:hover:text-primary-text"
+                  disabled
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6">
+          <!-- Modal Header -->
+          <div class="mb-6 flex items-center justify-between">
+            <h2 id="modalTitle" class="text-2xl font-black uppercase tracking-tight text-accent">Add Student</h2>
+            <button 
+              id="closeModalBtn" 
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
             >
-              Cancel
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
             </button>
           </div>
 
-          <input id="studentId" type="hidden" />
+          <!-- Modal Form -->
+          <form id="studentForm">
+            <input id="studentId" type="hidden" />
 
-          <label class="mb-4 block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">Name</span>
-            <input
-              id="name"
-              class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              placeholder="Anita Sharma"
-              pattern="[a-zA-Z\s]{2,100}"
-              title="Name must be 2-100 characters and contain only letters"
-              minlength="2"
-              maxlength="100"
-              required
-            />
-          </label>
+            <!-- Name -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Name</span>
+              <input
+                id="name"
+                type="text"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="Anita Sharma"
+                pattern="[a-zA-Z\s]{2,100}"
+                title="Name must be 2-100 characters and contain only letters"
+                minlength="2"
+                maxlength="100"
+                required
+              />
+            </label>
 
-          <label class="mb-4 block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">Email</span>
-            <input
-              id="email"
-              type="email"
-              class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              placeholder="anita@example.com"
-              maxlength="100"
-              required
-            />
-          </label>
+            <!-- Email -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Email</span>
+              <input
+                id="email"
+                type="email"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="anita@example.com"
+                maxlength="100"
+                required
+              />
+            </label>
 
-          <label class="mb-4 block">
-            <span class="mb-1 block text-sm font-medium text-slate-700">Course</span>
-            <input
-              id="course"
-              class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-              placeholder="MERN Stack"
-              minlength="2"
-              maxlength="100"
-              required
-            />
-          </label>
+            <!-- Course -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Course</span>
+              <input
+                id="course"
+                type="text"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="MERN Stack"
+                minlength="2"
+                maxlength="100"
+                required
+              />
+            </label>
 
-          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium text-slate-700">Phone</span>
+            <!-- Phone -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Phone</span>
               <input
                 id="phone"
-                class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                type="text"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
                 placeholder="1234567890"
                 pattern="\d{10}"
                 title="Phone number must be exactly 10 digits"
@@ -83,68 +359,47 @@
               />
             </label>
 
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium text-slate-700">Age</span>
+            <!-- Age -->
+            <label class="mb-6 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Age</span>
               <input
                 id="age"
                 type="number"
                 min="16"
                 max="100"
-                class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
                 placeholder="21"
                 required
               />
             </label>
-          </div>
 
-          <button
-            id="submitBtn"
-            class="mt-5 w-full rounded-md bg-blue-700 px-4 py-2.5 font-semibold text-white hover:bg-blue-800"
-            type="submit"
-          >
-            Save Student
-          </button>
+            <!-- Modal Message -->
+            <p id="modalMessage" class="mb-4 hidden rounded-sm px-4 py-3 text-sm font-bold"></p>
 
-          <p id="message" class="mt-4 hidden rounded-md px-3 py-2 text-sm"></p>
-        </form>
-
-        <section class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-slate-200">
-          <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 class="text-xl font-semibold">Students</h2>
-              <p id="studentCount" class="text-sm text-slate-500">Loading students...</p>
+            <!-- Form Buttons -->
+            <div class="flex gap-3">
+              <button
+                id="cancelModalBtn"
+                type="button"
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                id="submitBtn"
+                type="submit"
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              >
+                Save Student
+              </button>
             </div>
-            <button
-              id="refreshBtn"
-              class="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              type="button"
-            >
-              Refresh
-            </button>
-          </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full min-w-[720px] border-collapse text-left text-sm">
-              <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
-                  <th class="px-3 py-3 font-semibold">Name</th>
-                  <th class="px-3 py-3 font-semibold">Email</th>
-                  <th class="px-3 py-3 font-semibold">Course</th>
-                  <th class="px-3 py-3 font-semibold">Phone</th>
-                  <th class="px-3 py-3 font-semibold">Age</th>
-                  <th class="px-3 py-3 text-right font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="studentsTable"></tbody>
-            </table>
-          </div>
-
-          <div id="emptyState" class="hidden py-12 text-center text-slate-500">
-            No students yet. Add the first student from the form.
-          </div>
-        </section>
-      </section>
-    </main>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm shadow-lg min-w-[300px]"></div>
 
     <script src="./app.js"></script>
   </body>
