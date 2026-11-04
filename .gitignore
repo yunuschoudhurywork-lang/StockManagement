@@ -4,3 +4,8 @@ npm-debug.log*
 coverage/
 .nyc_output/
 .jest-cache/
+
+# Test output files
+coverage-final.txt
+test-output.txt
+test-run*.txt
