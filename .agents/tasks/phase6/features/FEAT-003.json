@@ -1,0 +1,40 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Implement Courses Management feature with full CRUD operations on a new Course model, backend API endpoints, and frontend course management interface. Update student controller to validate course names against existing courses. This feature enables managing courses as separate entities rather than free-text fields.",
+  "status": "pending",
+  "steps": [
+    "1. Create models/Course.js with Mongoose schema: name (String, required, unique, trim), description (String, optional, trim), capacity (Number, optional, min: 1), timestamps: true. Add index on name field for lookups",
+    "2. Create controllers/courseController.js with 6 async handler functions: getAllCourses (list all with student counts via aggregation), createCourse (validate unique name, trim inputs), updateCourse (by id, validate unique name if changed), deleteCourse (prevent if students enrolled by checking Student.countDocuments({course: courseName})), getCourseStudents (by courseName, return students enrolled in that course), getCourseByName (helper for validation)",
+    "3. Create routes/courseRoutes.js with routes: GET /api/courses, POST /api/courses (with validation middleware: name required 2-100 chars, description optional max 500 chars, capacity optional positive integer), PUT /api/courses/:id (with validation), DELETE /api/courses/:id, GET /api/courses/:courseName/students",
+    "4. Update controllers/studentController.js createStudent and updateStudent functions to validate course field against existing Course.findOne({name: courseValue}) - return 400 error if course doesn't exist. Add comment explaining this enforces referential integrity",
+    "5. Register courseRoutes in app.js with app.use('/api/courses', courseRoutes) after exportRoutes",
+    "6. Add COURSES sidebar navigation item in public/index.html after EXPORT DATA, before NOTIFICATIONS. Use existing nav-link class pattern",
+    "7. Add courses view section in public/index.html with: course list table (name, description, capacity, student count, actions), add course button, edit/delete buttons per row, search input for filtering courses, modal form for add/edit with name/description/capacity fields, view enrolled students modal. Style with Brutalist theme matching existing tables",
+    "8. Extend public/app.js with: loadCourses() to fetch courses, renderCoursesView() to display table and modals, addCourse()/editCourse()/deleteCourse() handlers, viewCourseStudents(courseName) to show enrolled students, searchCourses() with debounce. Update addStudent/editStudent forms to fetch and display course dropdown from /api/courses instead of free text",
+    "9. Create tests/integration/courses.test.js following existing test pattern: test GET /api/courses returns courses with counts, test POST creates course with valid data, test POST fails with duplicate name, test PUT updates course, test DELETE prevents deletion when students enrolled, test DELETE succeeds when no students enrolled, test GET /:courseName/students returns enrolled students, test student creation fails with non-existent course"
+  ],
+  "acceptance_criteria": [
+    "Course model exists with name (unique), description, capacity, timestamps",
+    "GET /api/courses returns array of courses with student count for each",
+    "POST /api/courses creates course with validation (unique name required)",
+    "PUT /api/courses/:id updates course and prevents duplicate names",
+    "DELETE /api/courses/:id prevents deletion when students enrolled, returns 400 with message",
+    "DELETE /api/courses/:id succeeds when no students enrolled",
+    "GET /api/courses/:courseName/students returns students enrolled in that course",
+    "POST /api/students fails with 400 if course doesn't exist in Course collection",
+    "PUT /api/students/:id fails with 400 if updated course doesn't exist",
+    "COURSES sidebar item navigates to course management view with list and add button",
+    "Course search filters the table, edit/delete buttons work, view students shows enrolled list",
+    "Student add/edit forms show course dropdown populated from /api/courses",
+    "All integration tests in tests/integration/courses.test.js pass",
+    "Running npm test shows no regressions"
+  ],
+  "verification": [
+    "Run npm run test:integration -- courses.test.js to verify course endpoints and student validation",
+    "Run npm test to verify full test suite passes",
+    "Start server with npm run dev, click COURSES in sidebar, add 3 courses (CSE, EEE, BBA) with descriptions and capacities, verify courses list shows all with 0 student count, create 2 students with course CSE, verify COURSES view now shows CSE with count 2, try to delete CSE course and verify error prevents deletion, click view students on CSE and verify 2 students shown, delete unused course (BBA) and verify it succeeds, try to create student with non-existent course and verify validation error"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

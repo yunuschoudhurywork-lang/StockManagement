@@ -1,0 +1,40 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Implement Notifications feature with backend API for notification CRUD, automatic notification generation via middleware on student/course operations, and frontend notification panel with unread badge and mark-as-read functionality. Notifications track system activities with timestamps.",
+  "status": "pending",
+  "steps": [
+    "1. Create models/Notification.js with Mongoose schema: type (String, required, enum: ['student_added', 'student_updated', 'student_deleted', 'course_added', 'course_updated', 'course_deleted']), message (String, required, max 500 chars), isRead (Boolean, default: false), timestamps: true. Add index on isRead and createdAt for efficient queries",
+    "2. Create controllers/notificationController.js with 4 async handler functions: getAllNotifications (GET last 20, sorted by createdAt desc), createNotification (POST, for manual notifications or testing), markAsRead (PUT by id, sets isRead to true), deleteNotification (DELETE by id)",
+    "3. Create middleware/notificationLogger.js that exports functions: logStudentAdded(student), logStudentUpdated(student), logStudentDeleted(student), logCourseAdded(course), logCourseUpdated(course), logCourseDeleted(course). Each creates a Notification document with appropriate type and message (e.g., 'Student John Doe was added' or 'Course CSE was updated')",
+    "4. Update controllers/studentController.js: after successful createStudent, call notificationLogger.logStudentAdded(student); after successful updateStudent, call logStudentUpdated; after successful deleteStudent, call logStudentDeleted. Import notificationLogger at top",
+    "5. Update controllers/courseController.js: after successful createCourse, call notificationLogger.logCourseAdded(course); after successful updateCourse, call logCourseUpdated; after successful deleteCourse, call logCourseDeleted. Import notificationLogger at top",
+    "6. Create routes/notificationRoutes.js with routes: GET /api/notifications, POST /api/notifications (with validation: type enum, message required), PUT /api/notifications/:id/read, DELETE /api/notifications/:id",
+    "7. Register notificationRoutes in app.js with app.use('/api/notifications', notificationRoutes) after courseRoutes",
+    "8. Add NOTIFICATIONS sidebar navigation item in public/index.html after COURSES, before SETTINGS. Add unread badge span with id='notificationBadge' styled with bg-error text-white rounded-full positioned absolute. Use existing nav-link class pattern",
+    "9. Add notifications view section in public/index.html with: notification list (type icon, message, relative timestamp, mark-as-read button for unread items), clear all button, empty state message. Style with Brutalist theme: unread notifications with border-accent, read with border-border-color",
+    "10. Extend public/app.js with: loadNotifications() to fetch notifications, renderNotificationsView() to display list with relative timestamps ('2 minutes ago' using helper function), markNotificationAsRead(id), deleteNotification(id), updateNotificationBadge() to show count of unread, pollNotifications() with setInterval to refresh every 30 seconds. Call updateNotificationBadge() on page load and after any student/course operations",
+    "11. Create tests/integration/notifications.test.js following existing test pattern: test GET /api/notifications returns last 20 sorted by date, test POST creates notification with valid data, test PUT /:id/read marks as read, test DELETE /:id removes notification, test notificationLogger.logStudentAdded creates notification when student created, test notificationLogger.logCourseDeleted creates notification when course deleted, test notifications are auto-created on student/course CRUD operations"
+  ],
+  "acceptance_criteria": [
+    "Notification model exists with type (enum), message, isRead (default false), timestamps",
+    "GET /api/notifications returns last 20 notifications sorted by createdAt desc",
+    "POST /api/notifications creates notification with validation",
+    "PUT /api/notifications/:id/read updates isRead to true",
+    "DELETE /api/notifications/:id removes notification",
+    "Creating/updating/deleting a student automatically creates a notification with appropriate type and message",
+    "Creating/updating/deleting a course automatically creates a notification with appropriate type and message",
+    "NOTIFICATIONS sidebar item shows unread badge with count when unread notifications exist",
+    "Notifications view displays list with relative timestamps, unread items have mark-as-read button",
+    "Notification badge updates after student/course operations and polls every 30 seconds",
+    "All integration tests in tests/integration/notifications.test.js pass",
+    "Running npm test shows no regressions"
+  ],
+  "verification": [
+    "Run npm run test:integration -- notifications.test.js to verify notification endpoints and middleware",
+    "Run npm test to verify full test suite passes",
+    "Start server with npm run dev, verify NOTIFICATIONS badge shows 0 or is hidden initially, create a student and verify NOTIFICATIONS badge increments to 1, click NOTIFICATIONS in sidebar and verify notification 'Student [name] was added' appears with '< 1 minute ago' timestamp and is marked unread (yellow border), click mark-as-read button and verify border changes to gray, create a course and verify badge increments, delete a student and verify notification appears, wait 30 seconds and verify badge updates if new notifications exist, click clear all and verify all notifications deleted"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

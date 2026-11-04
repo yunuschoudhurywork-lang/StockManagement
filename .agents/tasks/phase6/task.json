@@ -1,0 +1,7 @@
+{
+  "task_id": "task-phase6-sidebar-features",
+  "task_description": "Add 4 new functional sidebar features: Reports & Analytics, Export Data, Courses Management, and Notifications to the Student Management System",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}
