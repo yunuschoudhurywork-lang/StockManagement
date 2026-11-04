@@ -44,15 +44,34 @@ This repository currently contains a **Student Management CRUD application** as 
   - HTML5 form validation attributes
   - Comprehensive validation rules (email, phone, age, name, course)
 
+- ✅ **Phase 5: Additional Features & UI Enhancement**
+  - Server-side pagination (customizable page and limit)
+  - Advanced search functionality (by name or email)
+  - Multi-field filtering (by course and age range)
+  - Sortable table columns (name, email, course, age, createdAt, updatedAt)
+  - HTTP request logging with Morgan middleware
+  - Brutalist UI design (Black #111111, Yellow #FFD83D, Off-white #F5F2EA palette)
+  - Modern dashboard with sidebar navigation
+  - Student statistics cards (total students, total courses, average age)
+  - Interactive search/filter controls with debouncing
+  - Pagination controls with records-per-page selector
+  - Responsive design (desktop, tablet, mobile)
+
 ### Student Management Features
 
-- Create new students
-- View all students (sorted by newest first)
+- Create new students with modal form
+- View all students with pagination
 - Edit student details
-- Delete students
+- Delete students with confirmation
+- Search students by name or email
+- Filter students by course and age range
+- Sort students by multiple columns (ascending/descending)
+- Navigate through paginated results
+- View student statistics and analytics
 - MongoDB Atlas integration
 - Input validation (client & server)
 - Error handling with user-friendly messages
+- HTTP request logging for monitoring
 
 ---
 
@@ -195,16 +214,79 @@ All student data is validated on multiple levels (HTML5, client-side JS, server-
 - `GET /api/health` - Check if API is running
 
 ### Student Management
-- `GET /api/students` - Get all students (sorted by newest)
-- `POST /api/students` - Create a new student
-- `PUT /api/students/:id` - Update student by ID
-- `DELETE /api/students/:id` - Delete student by ID
 
-### Request/Response Examples
+#### Get All Students (with Pagination, Search, Filtering, and Sorting)
+- `GET /api/students` - Get all students with optional query parameters
 
-**Create Student:**
+**Query Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | number | 1 | Current page number (min: 1) |
+| `limit` | number | 10 | Records per page (min: 1, max: 100) |
+| `search` | string | - | Search by student name or email (case-insensitive partial match) |
+| `course` | string | - | Filter by course name (case-insensitive exact match) |
+| `minAge` | number | - | Filter students with age >= minAge |
+| `maxAge` | number | - | Filter students with age <= maxAge |
+| `sortBy` | string | createdAt | Sort field: `name`, `email`, `course`, `age`, `createdAt`, `updatedAt` |
+| `order` | string | desc | Sort order: `asc` (ascending) or `desc` (descending) |
+
+**Examples:**
+
+```bash
+# Basic pagination
+GET /api/students?page=1&limit=10
+
+# Search by name or email
+GET /api/students?search=john
+
+# Filter by course
+GET /api/students?course=CSE
+
+# Filter by age range
+GET /api/students?minAge=20&maxAge=25
+
+# Sort by name ascending
+GET /api/students?sortBy=name&order=asc
+
+# Combined query: search, filter, sort, and paginate
+GET /api/students?page=1&limit=10&search=yunus&course=CSE&sortBy=name&order=asc
+
+# Filter by course and age, sorted by age
+GET /api/students?course=EEE&minAge=22&sortBy=age&order=desc
+```
+
+**Response Format:**
 ```json
-POST /api/students
+{
+  "students": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "course": "MERN Stack",
+      "phone": "9876543210",
+      "age": 21,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalStudents": 50,
+    "limit": 10,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+#### Create Student
+- `POST /api/students` - Create a new student
+
+**Request Body:**
+```json
 {
   "name": "John Doe",
   "email": "john@example.com",
@@ -227,6 +309,71 @@ POST /api/students
   "updatedAt": "2024-01-15T10:30:00.000Z"
 }
 ```
+
+#### Update Student
+- `PUT /api/students/:id` - Update student by ID
+
+#### Delete Student
+- `DELETE /api/students/:id` - Delete student by ID
+
+---
+
+## 🎨 Phase 5 Brutalist Dashboard UI
+
+The application features a modern **Brutalist design** with a bold, high-contrast aesthetic:
+
+### Design Principles
+
+- **Dark Theme:** Primary background `#111111` with secondary `#1A1A1A` for depth
+- **Bold Yellow Accents:** `#FFD83D` for buttons, active states, and highlights
+- **High Contrast:** Off-white text `#F5F2EA` on dark backgrounds for optimal readability
+- **Strong Borders:** Bold `#E8E4DA` borders separating content sections
+- **Minimal Rounding:** Rectangular cards with subtle corner rounding
+- **Oversized Typography:** Bold, uppercase headings for visual hierarchy
+
+### Dashboard Components
+
+1. **Sidebar Navigation**
+   - Dark background with yellow highlights for active items
+   - Links to Dashboard, Students, Settings sections
+   - Collapsible hamburger menu on mobile
+
+2. **Statistics Cards**
+   - Total Students count
+   - Total Courses count
+   - Average Age calculation
+   - Dark backgrounds with yellow borders
+
+3. **Search & Filter Controls**
+   - Debounced search input (300ms delay)
+   - Course filter dropdown (dynamically populated)
+   - Age range inputs (minAge, maxAge)
+   - Clear filters button
+   - Yellow "Add Student" button
+
+4. **Sortable Student Table**
+   - Click column headers to sort (name, email, course, age)
+   - Visual sort indicators (up/down arrows)
+   - Hover states with yellow highlights
+   - Edit and Delete action buttons
+
+5. **Pagination Controls**
+   - Previous/Next navigation buttons
+   - Current page indicator (Page X of Y)
+   - Records-per-page selector (10, 25, 50, 100)
+   - Total records display (Showing X-Y of Z students)
+
+6. **Modal Form**
+   - Add/Edit student form in modal overlay
+   - Dark background with yellow accents
+   - Client-side and server-side validation
+   - Toast notifications for success/error
+
+### Responsive Behavior
+
+- **Desktop (1920px+):** Full sidebar, statistics in row, expanded table
+- **Tablet (768px-1919px):** Collapsible sidebar, stacked statistics
+- **Mobile (<768px):** Hamburger menu, vertical layout, horizontal table scroll
 
 ---
 
@@ -326,9 +473,28 @@ npm test
 - `cors` - Cross-Origin Resource Sharing
 - `helmet` - Security headers
 - `express-validator` - Input validation
+- `morgan` - HTTP request logger middleware
 
 ### Development Dependencies:
 - `nodemon` - Auto-restart server on file changes
+- `jest` - Testing framework
+- `supertest` - HTTP integration testing
+- `mongodb-memory-server` - In-memory MongoDB for testing
+
+### Morgan Logging
+
+Morgan is configured to log all HTTP requests in development format:
+
+```
+GET /api/students?page=1&limit=10 200 15.234 ms - 1024
+POST /api/students 201 45.123 ms - 256
+PUT /api/students/507f1f77bcf86cd799439011 200 23.456 ms - 256
+DELETE /api/students/507f1f77bcf86cd799439011 200 12.789 ms - 32
+```
+
+**Log Format:** `METHOD URL STATUS TIME - SIZE`
+
+Logs appear in the console when running the server with `npm start` or `npm run dev`.
 
 ---
 
@@ -357,7 +523,7 @@ MIT License
 - [x] Phase 2: MVC Architecture Refactoring  
 - [x] Phase 3: Enhanced Validation
 - [ ] Phase 4: Testing Infrastructure
-- [ ] Phase 5: Additional Features (Pagination, Search, Filtering)
+- [x] Phase 5: Additional Features (Pagination, Search, Filtering, Sorting, Morgan Logging, Brutalist UI)
 - [ ] Phase 6: Production Readiness
 - [ ] Phase 7: Database Migration (Optional)
 - [ ] Phase 8: DevOps & Deployment
