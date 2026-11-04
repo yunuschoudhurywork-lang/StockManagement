@@ -620,5 +620,40 @@ document.addEventListener('click', (event) => {
   }
 });
 
+// Navigation handling
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    // Remove active class from all links
+    document.querySelectorAll('.nav-link').forEach(l => {
+      l.classList.remove('active', 'bg-accent', 'border-accent', 'text-primary-bg');
+      l.classList.add('border-border-color', 'text-primary-text');
+    });
+    
+    // Add active class to clicked link
+    link.classList.add('active', 'bg-accent', 'border-accent', 'text-primary-bg');
+    link.classList.remove('border-border-color', 'text-primary-text');
+    
+    // Get the navigation target
+    const target = link.querySelector('span').textContent.toLowerCase();
+    
+    // Close mobile menu
+    elements.sidebar.classList.add('-translate-x-full');
+    
+    // Handle navigation
+    if (target === 'dashboard') {
+      // Scroll to top to show dashboard
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (target === 'students') {
+      // Scroll to student table
+      elements.tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (target === 'settings') {
+      // Show settings info
+      alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
+    }
+  });
+});
+
 // Initialize
 loadStudents();
