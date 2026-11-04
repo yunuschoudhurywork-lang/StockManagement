@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
+const morgan = require('morgan');
 const studentRoutes = require('./routes/studentRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -33,6 +34,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// HTTP request logging middleware
+app.use(morgan('dev'));
 
 // Body parser middleware
 app.use(express.json());

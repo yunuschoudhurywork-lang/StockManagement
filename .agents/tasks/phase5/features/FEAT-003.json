@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-003",
+  "type": "test",
+  "description": "Comprehensive test coverage for Phase 5 features: create integration tests for pagination, search, filtering, and sorting endpoints, add Morgan middleware test, and update README.md documentation with Phase 5 details and API examples. Maintain >80% overall coverage.",
+  "status": "pending",
+  "steps": [
+    "Create c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.pagination.test.js: test default pagination (page 1, limit 10), custom page and limit (page=2&limit=5), page < 1 defaults to 1, page > totalPages returns empty array with correct metadata, limit < 1 defaults to 1, limit > 100 caps at 100, empty results when no students, pagination metadata structure (currentPage, totalPages, totalStudents, limit, hasNextPage, hasPrevPage). Use beforeEach to seed test data with createTestStudent() from tests/utils.js. Follow pattern from tests/integration/students.get.test.js.",
+    "Create c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.search.test.js: test search by name partial match (case-insensitive), search by email partial match (case-insensitive), search with no results, search combined with pagination (search=john&page=1&limit=5), search with special characters (escape regex), empty search param returns all students. Seed diverse test data (different names/emails) in beforeEach.",
+    "Create c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.filter.test.js: test filter by course exact match (case-insensitive), filter by minAge only, filter by maxAge only, filter by age range (minAge=20&maxAge=25), combined filters (course + age range), filter with no results, invalid age values (non-numeric) ignored or handled gracefully. Seed students with varied courses and ages in beforeEach.",
+    "Create c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.sort.test.js: test sort by name ascending and descending, sort by email asc/desc, sort by course asc/desc, sort by age asc/desc, sort by createdAt asc/desc (default), sort by updatedAt asc/desc, invalid sortBy field defaults to createdAt, sort combined with pagination and search (sortBy=name&order=asc&page=1&limit=5&search=test). Seed test data and verify order in response.",
+    "Add Morgan middleware test in c:\\stockmgmt\\student-management-crud\\tests\\integration\\morgan.test.js or add test case in existing health.test.js: verify Morgan middleware is registered (check app._router.stack for morgan middleware), or make a request and verify it doesn't error (integration test approach - Morgan logs but doesn't break requests). Use pattern from tests/integration/health.test.js.",
+    "Update c:\\stockmgmt\\student-management-crud\\README.md: mark Phase 5 as completed in Project Roadmap section, add Phase 5 to Completed Features section with bullet points (pagination, search, filtering, sorting, Morgan logging, Brutalist UI), update API Endpoints section with new query parameters documentation (page, limit, search, course, minAge, maxAge, sortBy, order) and combined query examples (GET /api/students?page=1&limit=10&search=yunus&course=CSE&sortBy=name&order=asc), add Morgan Logging subsection under dependencies or features, add Phase 5 UI description (Brutalist dashboard with sidebar, statistics, search/filter, sortable table, pagination). Follow existing README structure and markdown formatting.",
+    "Run all tests and verify coverage remains >80%: execute 'npm test' in c:\\stockmgmt\\student-management-crud, confirm all new pagination/search/filter/sort tests pass, confirm all existing tests still pass (no regressions), verify coverage report shows >80% overall coverage, check that new controller logic and API routes are covered.",
+    "Fix any test failures or coverage gaps: if any tests fail, debug and fix the backend/frontend implementation or test code, if coverage drops below 80%, add missing test cases for uncovered code paths (error handling, edge cases), ensure all acceptance criteria from FEAT-001 and FEAT-002 are covered by tests."
+  ],
+  "acceptance_criteria": [
+    "students.pagination.test.js created with 8+ test cases covering all pagination scenarios",
+    "students.search.test.js created with 6+ test cases covering all search scenarios",
+    "students.filter.test.js created with 7+ test cases covering all filtering scenarios",
+    "students.sort.test.js created with 9+ test cases covering all sorting scenarios",
+    "Morgan middleware test added and passing",
+    "README.md updated with Phase 5 marked complete, new API parameters documented, combined query examples added, UI description added",
+    "npm test passes all tests (existing + new) with no failures",
+    "Overall test coverage remains >80% (check coverage report after npm test)",
+    "All Phase 5 backend features (pagination, search, filter, sort) have test coverage",
+    "All edge cases tested (invalid params, empty results, out-of-range values)"
+  ],
+  "verification": [
+    "Run 'npm test' in c:\\stockmgmt\\student-management-crud",
+    "Verify output shows all new test files executing: students.pagination.test.js, students.search.test.js, students.filter.test.js, students.sort.test.js",
+    "Verify all tests pass (green output, no red failures)",
+    "Check coverage summary at end of test output: Statements >80%, Branches >80%, Functions >80%, Lines >80%",
+    "Open coverage/lcov-report/index.html in browser, verify controllers/studentController.js has high coverage for getAllStudents function",
+    "Open c:\\stockmgmt\\student-management-crud\\README.md, verify Phase 5 marked complete in roadmap, verify API documentation updated with query parameters and examples",
+    "Run 'npm run test:integration' specifically to verify all integration tests pass"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}

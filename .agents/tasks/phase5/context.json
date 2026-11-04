@@ -1,0 +1,31 @@
+{
+  "project_type": "Node.js/Express backend + Vanilla JS frontend with Tailwind CSS CDN, MongoDB Atlas database",
+  "language": "JavaScript (Node.js backend, vanilla frontend)",
+  "build_system": "npm scripts - no build step required (vanilla JS + CDN)",
+  "test_framework": "Jest with Supertest for integration tests, mongodb-memory-server for in-memory database",
+  "build_command": "none (vanilla JS + CDN, no compilation needed)",
+  "test_command": "npm test (runs all tests with coverage), npm run test:unit, npm run test:integration",
+  "verification_instructions": "Run npm test to execute all tests. Coverage must remain >80%. Manually test UI at http://localhost:5000 after starting with npm start or npm run dev.",
+  "snapshot_or_generated_files": "none - no build artifacts or snapshots checked in",
+  "environment_constraints": "MongoDB Atlas connection must not be changed. Do not modify database credentials in .env. Preserve existing student records. Port 5000 is used for dev server.",
+  "contribution_requirements": "Preserve MVC architecture (models/, controllers/, routes/, middleware/). Maintain security features (helmet, CORS, validation). Keep asyncHandler pattern for controllers. Follow existing error handling patterns. All student CRUD operations must remain functional. Do not break existing validation rules.",
+  "key_patterns": "Controllers use asyncHandler wrapper from middleware/asyncHandler.js. Routes use express-validator middleware chains (validateCreateStudent, validateUpdateStudent, validate). Error handling centralized in middleware/errorHandler.js. Mongoose models in models/ with schema validation. Frontend uses vanilla JS with Tailwind CDN, no frameworks. API calls use fetch(). HTML forms validated client-side before submission. Test utilities in tests/utils.js provide createTestStudent() factory.",
+  "relevant_files": [
+    "c:\\stockmgmt\\student-management-crud\\app.js",
+    "c:\\stockmgmt\\student-management-crud\\controllers\\studentController.js",
+    "c:\\stockmgmt\\student-management-crud\\routes\\studentRoutes.js",
+    "c:\\stockmgmt\\student-management-crud\\models\\Student.js",
+    "c:\\stockmgmt\\student-management-crud\\middleware\\validator.js",
+    "c:\\stockmgmt\\student-management-crud\\middleware\\errorHandler.js",
+    "c:\\stockmgmt\\student-management-crud\\middleware\\asyncHandler.js",
+    "c:\\stockmgmt\\student-management-crud\\public\\index.html",
+    "c:\\stockmgmt\\student-management-crud\\public\\app.js",
+    "c:\\stockmgmt\\student-management-crud\\package.json",
+    "c:\\stockmgmt\\student-management-crud\\README.md",
+    "c:\\stockmgmt\\student-management-crud\\tests\\setup.js",
+    "c:\\stockmgmt\\student-management-crud\\tests\\utils.js",
+    "c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.get.test.js",
+    "c:\\stockmgmt\\student-management-crud\\tests\\integration\\students.post.test.js"
+  ],
+  "directory_structure": "Root contains app.js (Express app setup), server.js (entry point), start-server.js (connects DB then starts). config/ has database.js (MongoDB connection). controllers/ has studentController.js (getAllStudents, createStudent, updateStudent, deleteStudent). routes/ has studentRoutes.js (defines /api/students routes). models/ has Student.js (Mongoose schema: name, email, course, phone, age, timestamps). middleware/ has asyncHandler.js, errorHandler.js, validator.js. public/ has index.html and app.js (frontend). tests/ has setup.js (mongodb-memory-server), utils.js (test factories), integration/ and unit/ subdirectories."
+}

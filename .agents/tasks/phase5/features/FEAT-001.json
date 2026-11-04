@@ -1,0 +1,35 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Backend API enhancements: implement server-side pagination, search, filtering, sorting in getAllStudents controller, and integrate Morgan HTTP request logging middleware. This feature adds query parameter support (page, limit, search, course, minAge, maxAge, sortBy, order) to GET /api/students endpoint, with proper validation and error handling. Morgan middleware logs HTTP requests in 'dev' format.",
+  "status": "pending",
+  "steps": [
+    "Install morgan package: run 'npm install morgan' in c:\\stockmgmt\\student-management-crud and verify it appears in package.json dependencies.",
+    "Integrate Morgan middleware in c:\\stockmgmt\\student-management-crud\\app.js: import morgan, add app.use(morgan('dev')) after helmet and CORS middleware, before express.json() and routes. This logs METHOD URL STATUS TIME for all requests.",
+    "Enhance getAllStudents in c:\\stockmgmt\\student-management-crud\\controllers\\studentController.js: extract and validate query parameters (page default 1 min 1, limit default 10 min 1 max 100, search, course, minAge, maxAge, sortBy default 'createdAt' allowed fields ['name','email','course','age','createdAt','updatedAt'], order default 'desc'). Build MongoDB query with $and combining search ($regex case-insensitive on name/email if provided) and filters (course case-insensitive exact match, age range with $gte/$lte). Calculate skip = (page - 1) * limit. Execute Student.find(query).sort({[sortBy]: order === 'asc' ? 1 : -1}).skip(skip).limit(limit). Count total with Student.countDocuments(query). Return { students: [...], pagination: { currentPage: page, totalPages: Math.ceil(total/limit), totalStudents: total, limit, hasNextPage: page < totalPages, hasPrevPage: page > 1 } }.",
+    "Handle edge cases in getAllStudents: if page < 1, set to 1; if page > totalPages and totalPages > 0, return empty students array with correct pagination metadata; if limit < 1, set to 1; if limit > 100, set to 100; if sortBy not in allowed list, default to 'createdAt'; validate minAge/maxAge are positive integers if provided.",
+    "Preserve existing getAllStudents behavior when no query params provided: default pagination (page 1, limit 10) with createdAt desc sort. Do not break existing CRUD operations (createStudent, updateStudent, deleteStudent) or validation middleware."
+  ],
+  "acceptance_criteria": [
+    "Morgan package installed and listed in package.json dependencies",
+    "Morgan middleware logs requests in console when server runs (visible when manually testing with npm run dev)",
+    "GET /api/students returns { students: array, pagination: object } with correct pagination metadata",
+    "GET /api/students?page=2&limit=5 returns page 2 with 5 records per page",
+    "GET /api/students?search=john returns students with 'john' in name or email (case-insensitive partial match)",
+    "GET /api/students?course=CSE returns students with course matching 'CSE' (case-insensitive exact match)",
+    "GET /api/students?minAge=20&maxAge=25 returns students aged 20-25 inclusive",
+    "GET /api/students?sortBy=name&order=asc returns students sorted by name ascending",
+    "GET /api/students?sortBy=invalidField defaults to createdAt sorting",
+    "GET /api/students?page=999 (beyond last page) returns empty students array with valid pagination metadata",
+    "Existing POST, PUT, DELETE /api/students endpoints remain functional",
+    "All existing tests in tests/integration/ still pass"
+  ],
+  "verification": [
+    "Run 'npm test' and confirm all existing tests pass (coverage >80%)",
+    "Run 'npm run dev', open browser DevTools Network tab, make API requests and verify Morgan logs appear in terminal with format 'GET /api/students 200 15ms'",
+    "Manually test: GET /api/students?page=1&limit=10 returns correct structure with pagination object",
+    "Manually test: GET /api/students?search=test&course=CSE&sortBy=name&order=asc combines all parameters correctly"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
