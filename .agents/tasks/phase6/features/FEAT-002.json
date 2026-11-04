@@ -1,0 +1,32 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Implement Export Data feature with backend API endpoints for CSV and JSON exports of student data (all or filtered) and frontend export panel with format selector, export history, and download feedback. Supports exporting filtered results using same query parameters as GET /api/students.",
+  "status": "completed",
+  "steps": [
+    "1. Create controllers/exportController.js with 3 async handler functions: exportCSV (GET, queries all students, formats as CSV with headers, returns text/csv with Content-Disposition attachment), exportJSON (GET, queries all students, returns JSON array with Content-Disposition attachment), exportFiltered (POST, accepts query params in body: search, course, minAge, maxAge, uses same filtering logic as studentController.getAllStudents, returns CSV or JSON based on format field in body)",
+    "2. Create routes/exportRoutes.js with routes: GET /api/export/csv, GET /api/export/json, POST /api/export/filtered (with validation middleware for format field: must be 'csv' or 'json')",
+    "3. Register exportRoutes in app.js with app.use('/api/export', exportRoutes) after reportRoutes",
+    "4. Add EXPORT DATA sidebar navigation item in public/index.html after REPORTS, before COURSES (or after STUDENTS if no REPORTS yet). Use existing nav-link class pattern",
+    "5. Add export view section in public/index.html with: format selector radio buttons (CSV/JSON), export all button, export filtered button (uses current search/filter state), last-5 export history list with timestamps and download links, feedback messages. Style with Brutalist theme: border-2 border-accent on active format, bg-accent text-primary-bg for export buttons",
+    "6. Extend public/app.js with exportData(format, filtered) function to trigger downloads using fetch with blob response, showExportView() navigation handler, updateExportHistory() to store exports in localStorage with timestamp and format, renderExportHistory() to display last 5 exports. Use existing state object for current filters",
+    "7. Create tests/integration/export.test.js following existing test pattern: test GET /api/export/csv returns text/csv with correct headers and student data rows, test GET /api/export/json returns JSON array, test POST /api/export/filtered with search/course/age filters returns only matching students in specified format, test Content-Disposition header includes filename, test empty database returns empty CSV/JSON"
+  ],
+  "acceptance_criteria": [
+    "GET /api/export/csv returns CSV file with headers (name,email,course,phone,age) and Content-Type: text/csv",
+    "GET /api/export/json returns JSON array of students with Content-Type: application/json and Content-Disposition: attachment",
+    "POST /api/export/filtered with {format: 'csv', search: 'john'} returns only matching students as CSV",
+    "POST /api/export/filtered with {format: 'json', course: 'CSE', minAge: 20, maxAge: 25} returns filtered JSON",
+    "EXPORT DATA sidebar item navigates to export view with format selector and buttons",
+    "Export history persists in localStorage and displays last 5 exports with relative timestamps",
+    "All integration tests in tests/integration/export.test.js pass",
+    "Running npm test shows no regressions"
+  ],
+  "verification": [
+    "Run npm run test:integration -- export.test.js to verify export endpoints",
+    "Run npm test to verify full test suite passes",
+    "Start server with npm run dev, create 5+ students with varied data, click EXPORT DATA in sidebar, select CSV format, click Export All, verify CSV downloads with all students, select JSON format, apply filters (search or course), click Export Filtered, verify JSON downloads with only filtered students, verify export history shows timestamped entries"
+  ],
+  "blocked_reason": null,
+  "findings": "FEAT-002 implementation completed successfully. All backend API endpoints (GET /api/export/csv, GET /api/export/json, POST /api/export/filtered) implemented with proper CSV escaping, Content-Disposition headers, and filtering logic matching studentController.getAllStudents. Frontend export view added to sidebar with format selector (CSV/JSON), export all/filtered buttons, and localStorage-based export history showing last 5 exports with relative timestamps. All 13 integration tests pass, full test suite shows 207 passing tests with no regressions. Export functionality supports all existing filters: search, course, minAge, maxAge."
+}
