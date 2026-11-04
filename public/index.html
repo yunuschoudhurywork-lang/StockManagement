@@ -53,6 +53,11 @@
             </li>
             <li>
               <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Export Data</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
                 <span>Settings</span>
               </a>
             </li>
@@ -337,6 +342,78 @@
           <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Enrollment Trends (Last 6 Months)</h2>
           <div id="enrollmentTrendsChart" class="space-y-4">
             <!-- Trends will be rendered here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Data View (Hidden by default) -->
+      <div id="exportView" class="p-6 hidden">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <h1 class="text-5xl font-black uppercase tracking-tight text-primary-text md:text-6xl">
+            Export Data
+          </h1>
+          <div class="mt-2 h-2 w-32 bg-accent"></div>
+          <p class="mt-4 text-secondary-text text-sm">Export student data in CSV or JSON format for analysis and reporting.</p>
+        </div>
+
+        <!-- Export Format Selector -->
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-4 text-2xl font-black uppercase tracking-tight text-accent">Export Format</h2>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="radio" 
+                name="exportFormat" 
+                value="csv" 
+                id="formatCSV" 
+                checked
+                class="hidden"
+              />
+              <div class="export-format-option rounded-sm border-2 border-accent bg-accent px-6 py-3 font-bold uppercase text-sm text-primary-bg transition-colors duration-200">
+                CSV Format
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="radio" 
+                name="exportFormat" 
+                value="json" 
+                id="formatJSON"
+                class="hidden"
+              />
+              <div class="export-format-option rounded-sm border-2 border-border-color px-6 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent transition-colors duration-200">
+                JSON Format
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Export Actions -->
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-4 text-2xl font-black uppercase tracking-tight text-accent">Export Options</h2>
+          <div class="flex gap-4">
+            <button 
+              id="exportAllBtn"
+              class="flex-1 rounded-sm border-2 border-accent bg-accent px-6 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+            >
+              Export All Students
+            </button>
+            <button 
+              id="exportFilteredBtn"
+              class="flex-1 rounded-sm border-2 border-border-color px-6 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            >
+              Export Filtered Results
+            </button>
+          </div>
+          <p id="exportMessage" class="mt-4 hidden rounded-sm px-4 py-3 text-sm font-bold"></p>
+        </div>
+
+        <!-- Export History -->
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <h2 class="mb-4 text-2xl font-black uppercase tracking-tight text-accent">Recent Exports</h2>
+          <div id="exportHistoryList" class="space-y-2">
+            <p class="text-secondary-text text-sm">No export history yet.</p>
           </div>
         </div>
       </div>

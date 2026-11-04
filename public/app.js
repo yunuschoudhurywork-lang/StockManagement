@@ -650,6 +650,8 @@ document.querySelectorAll('.nav-link').forEach(link => {
       elements.tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else if (target === 'reports') {
       showReportsView();
+    } else if (target === 'export data') {
+      showExportView();
     } else if (target === 'settings') {
       // Show settings info
       alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
@@ -689,6 +691,7 @@ function showDashboardView() {
   const dashboardView = document.querySelector('#reportsView').previousElementSibling;
   dashboardView.classList.remove('hidden');
   document.getElementById('reportsView').classList.add('hidden');
+  document.getElementById('exportView').classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -779,3 +782,189 @@ function renderReportsView(reports) {
   }
 }
 
+// ========== Export Data Functions ==========
+
+// Show export view
+function showExportView() {
+  // Hide dashboard and reports views, show export view
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView.classList.add('hidden');
+  document.getElementById('reportsView').classList.add('hidden');
+  document.getElementById('exportView').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Render export history
+  renderExportHistory();
+
+  // Setup format selector handlers
+  setupExportFormatHandlers();
+}
+
+// Setup export format selector handlers
+function setupExportFormatHandlers() {
+  const formatRadios = document.querySelectorAll('input[name="exportFormat"]');
+  
+  formatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      // Update UI for selected format
+      document.querySelectorAll('.export-format-option').forEach(option => {
+        option.classList.remove('bg-accent', 'text-primary-bg', 'border-accent');
+        option.classList.add('border-border-color', 'text-primary-text');
+      });
+      
+      const selectedOption = e.target.parentElement.querySelector('.export-format-option');
+      selectedOption.classList.add('bg-accent', 'text-primary-bg', 'border-accent');
+      selectedOption.classList.remove('border-border-color', 'text-primary-text');
+    });
+  });
+}
+
+// Export data function
+async function exportData(format, filtered = false) {
+  const exportMessage = document.getElementById('exportMessage');
+  
+  try {
+    // Show loading message
+    exportMessage.textContent = 'Preparing export...';
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-secondary-bg border-2 border-accent text-accent';
+    exportMessage.classList.remove('hidden');
+
+    let response;
+
+    if (filtered) {
+      // Export filtered data using POST /api/export/filtered
+      const body = {
+        format,
+        search: state.search || undefined,
+        course: state.courseFilter || undefined,
+        minAge: state.minAge || undefined,
+        maxAge: state.maxAge || undefined
+      };
+
+      response = await fetch('/api/export/filtered', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+    } else {
+      // Export all data using GET /api/export/csv or /api/export/json
+      response = await fetch(`/api/export/${format}`);
+    }
+
+    if (!response.ok) {
+      throw new Error('Export failed');
+    }
+
+    // Get the blob from response
+    const blob = await response.blob();
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students_export_${Date.now()}.${format === 'csv' ? 'csv' : 'json'}`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    // Show success message
+    exportMessage.textContent = `✓ Export successful! File downloaded as ${format.toUpperCase()}`;
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-success border-2 border-success text-primary-bg';
+    
+    // Update export history
+    updateExportHistory(format, filtered);
+    renderExportHistory();
+
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      exportMessage.classList.add('hidden');
+    }, 3000);
+
+  } catch (error) {
+    // Show error message
+    exportMessage.textContent = '✗ Export failed. Please try again.';
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-error border-2 border-error text-primary-bg';
+    
+    console.error('Export error:', error);
+  }
+}
+
+// Update export history in localStorage
+function updateExportHistory(format, filtered) {
+  const history = JSON.parse(localStorage.getItem('exportHistory') || '[]');
+  
+  const newEntry = {
+    format: format.toUpperCase(),
+    type: filtered ? 'Filtered' : 'All Students',
+    timestamp: Date.now()
+  };
+  
+  // Add to beginning and keep only last 5
+  history.unshift(newEntry);
+  if (history.length > 5) {
+    history.pop();
+  }
+  
+  localStorage.setItem('exportHistory', JSON.stringify(history));
+}
+
+// Render export history
+function renderExportHistory() {
+  const historyList = document.getElementById('exportHistoryList');
+  const history = JSON.parse(localStorage.getItem('exportHistory') || '[]');
+  
+  if (history.length === 0) {
+    historyList.innerHTML = '<p class="text-secondary-text text-sm">No export history yet.</p>';
+    return;
+  }
+  
+  historyList.innerHTML = history.map(entry => {
+    const relativeTime = getRelativeTime(entry.timestamp);
+    return `
+      <div class="flex items-center justify-between rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3">
+        <div>
+          <p class="text-primary-text font-bold text-sm">${escapeHtml(entry.type)} - ${escapeHtml(entry.format)}</p>
+          <p class="text-secondary-text text-xs">${relativeTime}</p>
+        </div>
+        <span class="text-accent font-bold text-xs uppercase">Downloaded</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// Get relative time string
+function getRelativeTime(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  } else {
+    return 'Just now';
+  }
+}
+
+// Setup export button handlers
+document.getElementById('exportAllBtn')?.addEventListener('click', () => {
+  const format = document.querySelector('input[name="exportFormat"]:checked').value;
+  exportData(format, false);
+});
+
+document.getElementById('exportFilteredBtn')?.addEventListener('click', () => {
+  const format = document.querySelector('input[name="exportFormat"]:checked').value;
+  exportData(format, true);
+});

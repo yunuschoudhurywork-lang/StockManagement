@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const studentRoutes = require('./routes/studentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const exportRoutes = require('./routes/exportRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
@@ -71,6 +72,7 @@ app.get('/api/health', (req, res) => {
 // API routes
 app.use('/api/students', studentRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/export', exportRoutes);
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {
