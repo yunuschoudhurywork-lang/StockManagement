@@ -7,7 +7,12 @@ const asyncHandler = require('../middleware/asyncHandler');
  * @access  Public
  */
 const getAllNotifications = asyncHandler(async (req, res) => {
-  const notifications = await Notification.find()
+  const query = {};
+  if (req.query.unread === 'true') {
+    query.isRead = false;
+  }
+
+  const notifications = await Notification.find(query)
     .sort({ createdAt: -1 })
     .limit(20);
 

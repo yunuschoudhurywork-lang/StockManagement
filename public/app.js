@@ -1070,18 +1070,27 @@ function renderCoursesView() {
       <td class="px-4 py-4 text-right">
         <div class="flex justify-end gap-2">
           <button 
+            type="button"
+            data-action="view-students"
+            data-name="${escapeHtml(course.name)}"
             onclick="viewCourseStudents('${escapeHtml(course.name)}')"
             class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
           >
             View Students
           </button>
           <button 
+            type="button"
+            data-action="edit-course"
+            data-id="${course._id}"
             onclick="editCourse('${course._id}')"
             class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
           >
             Edit
           </button>
           <button 
+            type="button"
+            data-action="delete-course"
+            data-id="${course._id}"
             onclick="deleteCourse('${course._id}')"
             class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
           >
@@ -1335,13 +1344,20 @@ populateCourseDropdown();
 
 // ========== Notification Functions ==========
 
+const notificationState = {
+  filter: 'unread', // 'unread' (default) or 'all'
+  allNotifications: []
+};
+
 const notificationElements = {
   notificationsView: document.getElementById('notificationsView'),
   notificationBadge: document.getElementById('notificationBadge'),
   notificationsLoadingState: document.getElementById('notificationsLoadingState'),
   notificationsEmptyState: document.getElementById('notificationsEmptyState'),
   notificationsList: document.getElementById('notificationsList'),
-  clearAllNotificationsBtn: document.getElementById('clearAllNotificationsBtn')
+  clearAllNotificationsBtn: document.getElementById('clearAllNotificationsBtn'),
+  filterUnreadBtn: document.getElementById('filterUnreadNotificationsBtn'),
+  filterAllBtn: document.getElementById('filterAllNotificationsBtn')
 };
 
 // Format relative time
@@ -1382,6 +1398,21 @@ function getNotificationIcon(type) {
   }
 }
 
+// Set notification filter ('unread' or 'all')
+function setNotificationFilter(filter) {
+  notificationState.filter = filter;
+  if (notificationElements.filterUnreadBtn && notificationElements.filterAllBtn) {
+    if (filter === 'unread') {
+      notificationElements.filterUnreadBtn.className = 'rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg transition-colors duration-200';
+      notificationElements.filterAllBtn.className = 'rounded-sm border-2 border-transparent px-4 py-2 font-bold uppercase text-xs text-secondary-text hover:text-accent transition-colors duration-200';
+    } else {
+      notificationElements.filterAllBtn.className = 'rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg transition-colors duration-200';
+      notificationElements.filterUnreadBtn.className = 'rounded-sm border-2 border-transparent px-4 py-2 font-bold uppercase text-xs text-secondary-text hover:text-accent transition-colors duration-200';
+    }
+  }
+  renderNotificationsView();
+}
+
 // Load notifications from API
 async function loadNotifications() {
   try {
@@ -1395,7 +1426,8 @@ async function loadNotifications() {
     if (!response.ok) throw new Error('Failed to fetch notifications');
 
     const notifications = await response.json();
-    renderNotificationsView(notifications);
+    notificationState.allNotifications = notifications;
+    renderNotificationsView();
     updateNotificationBadge(notifications);
   } catch (error) {
     console.error('Error loading notifications:', error);
@@ -1408,12 +1440,26 @@ async function loadNotifications() {
 }
 
 // Render notifications view
-function renderNotificationsView(notifications = []) {
+function renderNotificationsView() {
   if (!notificationElements.notificationsList) return;
 
+  const notifications = notificationState.filter === 'unread'
+    ? notificationState.allNotifications.filter(n => !n.isRead)
+    : notificationState.allNotifications;
+
   if (notifications.length === 0) {
-    notificationElements.notificationsEmptyState?.classList.remove('hidden');
-    notificationElements.notificationsList?.classList.add('hidden');
+    if (notificationElements.notificationsEmptyState) {
+      const titleEl = notificationElements.notificationsEmptyState.querySelector('p:first-child');
+      const subEl = notificationElements.notificationsEmptyState.querySelector('p:last-child');
+      if (titleEl) {
+        titleEl.textContent = notificationState.filter === 'unread' ? 'No Unread Notifications' : 'No Notifications';
+      }
+      if (subEl) {
+        subEl.textContent = notificationState.filter === 'unread' ? 'All notifications have been marked as read.' : 'No activity recorded yet.';
+      }
+      notificationElements.notificationsEmptyState.classList.remove('hidden');
+    }
+    notificationElements.notificationsList.classList.add('hidden');
     notificationElements.notificationsList.innerHTML = '';
     return;
   }
@@ -1428,7 +1474,7 @@ function renderNotificationsView(notifications = []) {
     const icon = getNotificationIcon(notification.type);
 
     return `
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-sm border-2 ${borderClass} transition-colors duration-200" data-id="${notification._id}">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-sm border-2 ${borderClass} transition-all duration-300" data-id="${notification._id}">
         <div class="flex items-start sm:items-center gap-3">
           <span class="text-xl p-2 rounded-sm border border-border-color bg-primary-bg">${icon}</span>
           <div>
@@ -1439,15 +1485,21 @@ function renderNotificationsView(notifications = []) {
         <div class="flex items-center gap-2 self-end sm:self-center">
           ${isUnread ? `
             <button
+              type="button"
+              data-action="mark-read"
+              data-id="${notification._id}"
               onclick="markNotificationAsRead('${notification._id}')"
-              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200 cursor-pointer"
             >
               Mark Read
             </button>
           ` : ''}
           <button
+            type="button"
+            data-action="delete-notification"
+            data-id="${notification._id}"
             onclick="deleteNotification('${notification._id}')"
-            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200 cursor-pointer"
             title="Delete notification"
           >
             Delete
@@ -1461,13 +1513,32 @@ function renderNotificationsView(notifications = []) {
 // Mark notification as read
 async function markNotificationAsRead(id) {
   try {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el && notificationState.filter === 'unread') {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(20px)';
+    }
+
     const response = await fetch(`/api/notifications/${id}/read`, {
       method: 'PUT'
     });
     if (!response.ok) throw new Error('Failed to mark notification as read');
 
     showToast('Marked as read', 'success');
-    await loadNotifications();
+    
+    // Update local state
+    const item = notificationState.allNotifications.find(n => n._id === id);
+    if (item) item.isRead = true;
+
+    if (el && notificationState.filter === 'unread') {
+      setTimeout(() => {
+        renderNotificationsView();
+        updateNotificationBadge(notificationState.allNotifications);
+      }, 250);
+    } else {
+      renderNotificationsView();
+      updateNotificationBadge(notificationState.allNotifications);
+    }
   } catch (error) {
     console.error('Error marking notification as read:', error);
     showToast(error.message, 'error');
@@ -1477,13 +1548,31 @@ async function markNotificationAsRead(id) {
 // Delete notification
 async function deleteNotification(id) {
   try {
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) {
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(20px)';
+    }
+
     const response = await fetch(`/api/notifications/${id}`, {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete notification');
 
     showToast('Notification deleted', 'success');
-    await loadNotifications();
+    
+    // Update local state
+    notificationState.allNotifications = notificationState.allNotifications.filter(n => n._id !== id);
+
+    if (el) {
+      setTimeout(() => {
+        renderNotificationsView();
+        updateNotificationBadge(notificationState.allNotifications);
+      }, 250);
+    } else {
+      renderNotificationsView();
+      updateNotificationBadge(notificationState.allNotifications);
+    }
   } catch (error) {
     console.error('Error deleting notification:', error);
     showToast(error.message, 'error');
@@ -1502,7 +1591,9 @@ async function clearAllNotifications() {
     if (!response.ok) throw new Error('Failed to clear notifications');
 
     showToast('All notifications cleared', 'success');
-    await loadNotifications();
+    notificationState.allNotifications = [];
+    renderNotificationsView();
+    updateNotificationBadge([]);
   } catch (error) {
     console.error('Error clearing notifications:', error);
     showToast(error.message, 'error');
@@ -1543,6 +1634,66 @@ window.deleteNotification = deleteNotification;
 // Setup notification event listeners
 if (notificationElements.clearAllNotificationsBtn) {
   notificationElements.clearAllNotificationsBtn.addEventListener('click', clearAllNotifications);
+}
+
+if (notificationElements.filterUnreadBtn) {
+  notificationElements.filterUnreadBtn.addEventListener('click', () => setNotificationFilter('unread'));
+}
+
+if (notificationElements.filterAllBtn) {
+  notificationElements.filterAllBtn.addEventListener('click', () => setNotificationFilter('all'));
+}
+
+// Event delegation for notification actions (Mark Read & Delete)
+if (notificationElements.notificationsList) {
+  notificationElements.notificationsList.addEventListener('click', async (event) => {
+    const markReadBtn = event.target.closest('[data-action="mark-read"]');
+    if (markReadBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = markReadBtn.dataset.id;
+      if (id) await markNotificationAsRead(id);
+      return;
+    }
+
+    const deleteBtn = event.target.closest('[data-action="delete-notification"]');
+    if (deleteBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = deleteBtn.dataset.id;
+      if (id) await deleteNotification(id);
+      return;
+    }
+  });
+}
+
+// Event delegation for course table actions (View Students, Edit, Delete)
+if (courseElements.coursesTableBody) {
+  courseElements.coursesTableBody.addEventListener('click', async (event) => {
+    const viewBtn = event.target.closest('[data-action="view-students"]');
+    if (viewBtn) {
+      event.preventDefault();
+      const name = viewBtn.dataset.name;
+      if (name) viewCourseStudents(name);
+      return;
+    }
+
+    const editBtn = event.target.closest('[data-action="edit-course"]');
+    if (editBtn) {
+      event.preventDefault();
+      const id = editBtn.dataset.id;
+      if (id) editCourse(id);
+      return;
+    }
+
+    const deleteBtn = event.target.closest('[data-action="delete-course"]');
+    if (deleteBtn) {
+      event.preventDefault();
+      const id = deleteBtn.dataset.id;
+      if (id) await deleteCourse(id);
+      return;
+    }
+  });
 }
 
 // Poll notifications every 30 seconds
