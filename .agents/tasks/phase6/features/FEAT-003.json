@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Implement Courses Management feature with full CRUD operations on a new Course model, backend API endpoints, and frontend course management interface. Update student controller to validate course names against existing courses. This feature enables managing courses as separate entities rather than free-text fields.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "1. Create models/Course.js with Mongoose schema: name (String, required, unique, trim), description (String, optional, trim), capacity (Number, optional, min: 1), timestamps: true. Add index on name field for lookups",
     "2. Create controllers/courseController.js with 6 async handler functions: getAllCourses (list all with student counts via aggregation), createCourse (validate unique name, trim inputs), updateCourse (by id, validate unique name if changed), deleteCourse (prevent if students enrolled by checking Student.countDocuments({course: courseName})), getCourseStudents (by courseName, return students enrolled in that course), getCourseByName (helper for validation)",

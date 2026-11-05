@@ -36,7 +36,7 @@ The features are **independent** and can be implemented in any order, but the pr
 
 ### Steps
 
-- [ ] 1. Create `controllers/reportController.js` with 4 async handler functions:
+- [x] 1. Create `controllers/reportController.js` with 4 async handler functions:
       - `getOverview`: Calculate `totalStudents` (count), `totalCourses` (distinct count of course field), `avgAge` (average) using `Student.aggregate()`
       - `getCourseDistribution`: Group by course, calculate count and percentage for each
       - `getAgeDistribution`: Bucket ages into ranges (16-20, 21-25, 26-30, 31+), return count per range
@@ -44,7 +44,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/reportController.js`
       Verify: Create test data with `Student.create()`, fetch endpoints, verify calculations match expected values
 
-- [ ] 2. Create `routes/reportRoutes.js` with 4 GET routes (no validation middleware needed):
+- [x] 2. Create `routes/reportRoutes.js` with 4 GET routes (no validation middleware needed):
       - `GET /api/reports/overview`
       - `GET /api/reports/course-distribution`
       - `GET /api/reports/age-distribution`
@@ -52,15 +52,15 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `routes/reportRoutes.js`
       Verify: Routes are defined and export router
 
-- [ ] 3. Register `reportRoutes` in `app.js` by adding `app.use('/api/reports', reportRoutes)` after existing student routes and before the catch-all SPA route.
+- [x] 3. Register `reportRoutes` in `app.js` by adding `app.use('/api/reports', reportRoutes)` after existing student routes and before the catch-all SPA route.
       Files: `app.js`
       Verify: `npm start` shows no errors, routes are registered
 
-- [ ] 4. Add REPORTS sidebar navigation item in `public/index.html` after STUDENTS, before SETTINGS. Use existing `nav-link` class pattern with `border-2 border-border-color hover:border-accent hover:bg-accent hover:text-primary-bg`.
+- [x] 4. Add REPORTS sidebar navigation item in `public/index.html` after STUDENTS, before SETTINGS. Use existing `nav-link` class pattern with `border-2 border-border-color hover:border-accent hover:bg-accent hover:text-primary-bg`.
       Files: `public/index.html`
       Verify: View page, see REPORTS link in sidebar
 
-- [ ] 5. Add reports view section in `public/index.html` with:
+- [x] 5. Add reports view section in `public/index.html` with:
       - Statistics cards grid for overview data
       - CSS-based bar charts for course distribution (divs with width percentages, `bg-accent`)
       - CSS-based horizontal bars for age distribution
@@ -69,7 +69,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/index.html`
       Verify: View shows placeholder structure
 
-- [ ] 6. Extend `public/app.js` with:
+- [x] 6. Extend `public/app.js` with:
       - `loadReports()`: Fetch all 4 report endpoints
       - `renderReportsView()`: Display statistics and charts
       - `showReportsView()`: Navigation handler
@@ -77,7 +77,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/app.js`
       Verify: Click REPORTS, view loads and displays data
 
-- [ ] 7. Create `tests/integration/reports.test.js` following existing test pattern:
+- [x] 7. Create `tests/integration/reports.test.js` following existing test pattern:
       - `require('../setup')` for test database
       - Use `createTestStudent()` from `tests/utils.js`
       - Test each endpoint for 200 status and correct data structure
@@ -85,7 +85,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `tests/integration/reports.test.js`
       Verify: `npm run test:integration -- reports.test.js` passes all tests
 
-- [ ] 8. Run full test suite to verify no regressions.
+- [x] 8. Run full test suite to verify no regressions.
       Files: N/A
       Verify: `npm test` passes all tests with >94% coverage
 
@@ -95,29 +95,29 @@ The features are **independent** and can be implemented in any order, but the pr
 
 ### Steps
 
-- [ ] 1. Create `controllers/exportController.js` with 3 async handler functions:
+- [x] 1. Create `controllers/exportController.js` with 3 async handler functions:
       - `exportCSV`: Query all students, format as CSV with headers (name,email,course,phone,age), set `Content-Type: text/csv` and `Content-Disposition: attachment; filename=students.csv`
       - `exportJSON`: Query all students, return JSON array with `Content-Disposition: attachment; filename=students.json`
       - `exportFiltered`: Accept POST body with `{format, search, course, minAge, maxAge}`, use same filtering logic as `studentController.getAllStudents`, return CSV or JSON based on `format` field
       Files: `controllers/exportController.js`
       Verify: Create test data, fetch endpoints, verify response headers and content format
 
-- [ ] 2. Create `routes/exportRoutes.js` with 3 routes:
+- [x] 2. Create `routes/exportRoutes.js` with 3 routes:
       - `GET /api/export/csv`
       - `GET /api/export/json`
       - `POST /api/export/filtered` (with validation middleware: format must be 'csv' or 'json')
       Files: `routes/exportRoutes.js`
       Verify: Routes are defined and export router
 
-- [ ] 3. Register `exportRoutes` in `app.js` by adding `app.use('/api/export', exportRoutes)` after reportRoutes.
+- [x] 3. Register `exportRoutes` in `app.js` by adding `app.use('/api/export', exportRoutes)` after reportRoutes.
       Files: `app.js`
       Verify: `npm start` shows no errors
 
-- [ ] 4. Add EXPORT DATA sidebar navigation item in `public/index.html` after REPORTS (or after STUDENTS if REPORTS not yet added), before COURSES. Use existing `nav-link` class pattern.
+- [x] 4. Add EXPORT DATA sidebar navigation item in `public/index.html` after REPORTS (or after STUDENTS if REPORTS not yet added), before COURSES. Use existing `nav-link` class pattern.
       Files: `public/index.html`
       Verify: View page, see EXPORT DATA link in sidebar
 
-- [ ] 5. Add export view section in `public/index.html` with:
+- [x] 5. Add export view section in `public/index.html` with:
       - Format selector radio buttons (CSV/JSON) with `border-2 border-accent` on active format
       - Export all button (`bg-accent text-primary-bg`)
       - Export filtered button (uses current search/filter state)
@@ -126,7 +126,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/index.html`
       Verify: View shows export controls
 
-- [ ] 6. Extend `public/app.js` with:
+- [x] 6. Extend `public/app.js` with:
       - `exportData(format, filtered)`: Trigger downloads using fetch with blob response
       - `showExportView()`: Navigation handler
       - `updateExportHistory()`: Store exports in localStorage with timestamp and format
@@ -136,7 +136,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/app.js`
       Verify: Click EXPORT DATA, select format, click export, file downloads
 
-- [ ] 7. Create `tests/integration/export.test.js` following existing test pattern:
+- [x] 7. Create `tests/integration/export.test.js` following existing test pattern:
       - Test `GET /api/export/csv` returns `text/csv` with correct headers and student data rows
       - Test `GET /api/export/json` returns JSON array
       - Test `POST /api/export/filtered` with search/course/age filters returns only matching students in specified format
@@ -145,7 +145,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `tests/integration/export.test.js`
       Verify: `npm run test:integration -- export.test.js` passes all tests
 
-- [ ] 8. Run full test suite to verify no regressions.
+- [x] 8. Run full test suite to verify no regressions.
       Files: N/A
       Verify: `npm test` passes all tests with >94% coverage
 
@@ -155,7 +155,7 @@ The features are **independent** and can be implemented in any order, but the pr
 
 ### Steps
 
-- [ ] 1. Create `models/Course.js` with Mongoose schema:
+- [x] 1. Create `models/Course.js` with Mongoose schema:
       - `name`: String, required, unique, trim
       - `description`: String, optional, trim
       - `capacity`: Number, optional, min: 1
@@ -164,7 +164,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `models/Course.js`
       Verify: Model exports successfully
 
-- [ ] 2. Create `controllers/courseController.js` with 6 async handler functions:
+- [x] 2. Create `controllers/courseController.js` with 6 async handler functions:
       - `getAllCourses`: List all with student counts via aggregation lookup to Student collection
       - `createCourse`: Validate unique name, trim inputs
       - `updateCourse`: By id, validate unique name if changed
@@ -174,7 +174,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/courseController.js`
       Verify: Create courses, verify student counts, test delete prevention
 
-- [ ] 3. Create `routes/courseRoutes.js` with 5 routes and validation:
+- [x] 3. Create `routes/courseRoutes.js` with 5 routes and validation:
       - `GET /api/courses`
       - `POST /api/courses` (validation: name required 2-100 chars, description optional max 500 chars, capacity optional positive integer)
       - `PUT /api/courses/:id` (same validation as POST)
@@ -183,7 +183,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `routes/courseRoutes.js`
       Verify: Routes are defined with validation
 
-- [ ] 4. Update `controllers/studentController.js` to validate course field:
+- [x] 4. Update `controllers/studentController.js` to validate course field:
       - In `createStudent`: Add `await Course.findOne({name: req.body.course})`, return 400 error if not found
       - In `updateStudent`: Same validation if course field is being updated
       - Add comment explaining referential integrity enforcement
@@ -191,15 +191,15 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/studentController.js`
       Verify: Create student with non-existent course returns 400 error
 
-- [ ] 5. Register `courseRoutes` in `app.js` by adding `app.use('/api/courses', courseRoutes)` after exportRoutes.
+- [x] 5. Register `courseRoutes` in `app.js` by adding `app.use('/api/courses', courseRoutes)` after exportRoutes.
       Files: `app.js`
       Verify: `npm start` shows no errors
 
-- [ ] 6. Add COURSES sidebar navigation item in `public/index.html` after EXPORT DATA, before NOTIFICATIONS. Use existing `nav-link` class pattern.
+- [x] 6. Add COURSES sidebar navigation item in `public/index.html` after EXPORT DATA, before NOTIFICATIONS. Use existing `nav-link` class pattern.
       Files: `public/index.html`
       Verify: View page, see COURSES link in sidebar
 
-- [ ] 7. Add courses view section in `public/index.html` with:
+- [x] 7. Add courses view section in `public/index.html` with:
       - Course list table: name, description, capacity, student count, actions (edit/delete buttons)
       - Add course button (`bg-accent text-primary-bg`)
       - Search input for filtering courses
@@ -208,7 +208,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/index.html`
       Verify: View shows course management interface
 
-- [ ] 8. Extend `public/app.js` with:
+- [x] 8. Extend `public/app.js` with:
       - `loadCourses()`: Fetch courses
       - `renderCoursesView()`: Display table and modals
       - `addCourse()`, `editCourse()`, `deleteCourse()`: CRUD handlers
@@ -219,7 +219,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/app.js`
       Verify: Click COURSES, add course, edit, view students, delete (with prevention if students enrolled)
 
-- [ ] 9. Create `tests/integration/courses.test.js` following existing test pattern:
+- [x] 9. Create `tests/integration/courses.test.js` following existing test pattern:
       - Test `GET /api/courses` returns courses with counts
       - Test `POST /api/courses` creates course with valid data
       - Test `POST /api/courses` fails with duplicate name
@@ -231,7 +231,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `tests/integration/courses.test.js`
       Verify: `npm run test:integration -- courses.test.js` passes all tests
 
-- [ ] 10. Run full test suite to verify no regressions.
+- [x] 10. Run full test suite to verify no regressions.
        Files: N/A
        Verify: `npm test` passes all tests with >94% coverage
 
@@ -241,7 +241,7 @@ The features are **independent** and can be implemented in any order, but the pr
 
 ### Steps
 
-- [ ] 1. Create `models/Notification.js` with Mongoose schema:
+- [x] 1. Create `models/Notification.js` with Mongoose schema:
       - `type`: String, required, enum: ['student_added', 'student_updated', 'student_deleted', 'course_added', 'course_updated', 'course_deleted']
       - `message`: String, required, max 500 chars
       - `isRead`: Boolean, default: false
@@ -250,7 +250,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `models/Notification.js`
       Verify: Model exports successfully
 
-- [ ] 2. Create `controllers/notificationController.js` with 4 async handler functions:
+- [x] 2. Create `controllers/notificationController.js` with 4 async handler functions:
       - `getAllNotifications`: GET last 20, sorted by `createdAt` desc
       - `createNotification`: POST, for manual notifications or testing
       - `markAsRead`: PUT by id, sets `isRead` to true
@@ -258,7 +258,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/notificationController.js`
       Verify: Test endpoints work with test data
 
-- [ ] 3. Create `middleware/notificationLogger.js` with 6 functions:
+- [x] 3. Create `middleware/notificationLogger.js` with 6 functions:
       - `logStudentAdded(student)`: Creates notification with type 'student_added', message 'Student [name] was added'
       - `logStudentUpdated(student)`: Creates notification with type 'student_updated'
       - `logStudentDeleted(student)`: Creates notification with type 'student_deleted'
@@ -269,7 +269,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `middleware/notificationLogger.js`
       Verify: Call functions, verify notifications created in database
 
-- [ ] 4. Update `controllers/studentController.js` to log notifications:
+- [x] 4. Update `controllers/studentController.js` to log notifications:
       - After successful `createStudent`: `await notificationLogger.logStudentAdded(student)`
       - After successful `updateStudent`: `await notificationLogger.logStudentUpdated(student)`
       - After successful `deleteStudent`: `await notificationLogger.logStudentDeleted({name: student.name})`
@@ -277,7 +277,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/studentController.js`
       Verify: Create/update/delete student, verify notifications created
 
-- [ ] 5. Update `controllers/courseController.js` to log notifications:
+- [x] 5. Update `controllers/courseController.js` to log notifications:
       - After successful `createCourse`: `await notificationLogger.logCourseAdded(course)`
       - After successful `updateCourse`: `await notificationLogger.logCourseUpdated(course)`
       - After successful `deleteCourse`: `await notificationLogger.logCourseDeleted({name: course.name})`
@@ -285,7 +285,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `controllers/courseController.js`
       Verify: Create/update/delete course, verify notifications created
 
-- [ ] 6. Create `routes/notificationRoutes.js` with 4 routes:
+- [x] 6. Create `routes/notificationRoutes.js` with 4 routes:
       - `GET /api/notifications`
       - `POST /api/notifications` (validation: type enum, message required)
       - `PUT /api/notifications/:id/read`
@@ -293,17 +293,17 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `routes/notificationRoutes.js`
       Verify: Routes are defined with validation
 
-- [ ] 7. Register `notificationRoutes` in `app.js` by adding `app.use('/api/notifications', notificationRoutes)` after courseRoutes.
+- [x] 7. Register `notificationRoutes` in `app.js` by adding `app.use('/api/notifications', notificationRoutes)` after courseRoutes.
       Files: `app.js`
       Verify: `npm start` shows no errors
 
-- [ ] 8. Add NOTIFICATIONS sidebar navigation item in `public/index.html` after COURSES, before SETTINGS:
+- [x] 8. Add NOTIFICATIONS sidebar navigation item in `public/index.html` after COURSES, before SETTINGS:
       - Use existing `nav-link` class pattern
       - Add unread badge `<span id="notificationBadge">` with `bg-error text-white rounded-full` positioned absolute, hidden by default
       Files: `public/index.html`
       Verify: View page, see NOTIFICATIONS link with badge area
 
-- [ ] 9. Add notifications view section in `public/index.html` with:
+- [x] 9. Add notifications view section in `public/index.html` with:
       - Notification list: type icon, message, relative timestamp, mark-as-read button for unread items
       - Clear all button
       - Empty state message
@@ -311,7 +311,7 @@ The features are **independent** and can be implemented in any order, but the pr
       Files: `public/index.html`
       Verify: View shows notification interface
 
-- [ ] 10. Extend `public/app.js` with:
+- [x] 10. Extend `public/app.js` with:
        - `loadNotifications()`: Fetch notifications
        - `renderNotificationsView()`: Display list with relative timestamps ('2 minutes ago' using helper function)
        - `markNotificationAsRead(id)`: Mark as read
@@ -323,7 +323,7 @@ The features are **independent** and can be implemented in any order, but the pr
        Files: `public/app.js`
        Verify: Click NOTIFICATIONS, see list, mark as read, verify badge updates
 
-- [ ] 11. Create `tests/integration/notifications.test.js` following existing test pattern:
+- [x] 11. Create `tests/integration/notifications.test.js` following existing test pattern:
        - Test `GET /api/notifications` returns last 20 sorted by date
        - Test `POST /api/notifications` creates notification with valid data
        - Test `PUT /api/notifications/:id/read` marks as read
@@ -334,7 +334,7 @@ The features are **independent** and can be implemented in any order, but the pr
        Files: `tests/integration/notifications.test.js`
        Verify: `npm run test:integration -- notifications.test.js` passes all tests
 
-- [ ] 12. Run full test suite to verify no regressions.
+- [x] 12. Run full test suite to verify no regressions.
        Files: N/A
        Verify: `npm test` passes all tests with >94% coverage
 

@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "feat",
   "description": "Implement Notifications feature with backend API for notification CRUD, automatic notification generation via middleware on student/course operations, and frontend notification panel with unread badge and mark-as-read functionality. Notifications track system activities with timestamps.",
-  "status": "pending",
+  "status": "completed",
   "steps": [
     "1. Create models/Notification.js with Mongoose schema: type (String, required, enum: ['student_added', 'student_updated', 'student_deleted', 'course_added', 'course_updated', 'course_deleted']), message (String, required, max 500 chars), isRead (Boolean, default: false), timestamps: true. Add index on isRead and createdAt for efficient queries",
     "2. Create controllers/notificationController.js with 4 async handler functions: getAllNotifications (GET last 20, sorted by createdAt desc), createNotification (POST, for manual notifications or testing), markAsRead (PUT by id, sets isRead to true), deleteNotification (DELETE by id)",
