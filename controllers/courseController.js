@@ -1,6 +1,7 @@
 const Course = require('../models/Course');
 const Student = require('../models/Student');
 const asyncHandler = require('../middleware/asyncHandler');
+const notificationLogger = require('../middleware/notificationLogger');
 
 /**
  * @desc    Get all courses with student counts
@@ -44,6 +45,7 @@ const createCourse = asyncHandler(async (req, res) => {
   };
   
   const course = await Course.create(courseData);
+  await notificationLogger.logCourseAdded(course);
   res.status(201).json(course);
 });
 
@@ -72,6 +74,7 @@ const updateCourse = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Course not found' });
   }
   
+  await notificationLogger.logCourseUpdated(course);
   res.json(course);
 });
 
@@ -97,6 +100,7 @@ const deleteCourse = asyncHandler(async (req, res) => {
   }
   
   await Course.findByIdAndDelete(req.params.id);
+  await notificationLogger.logCourseDeleted({ name: course.name });
   res.json({ message: 'Course deleted successfully' });
 });
 

@@ -1,6 +1,7 @@
 const Student = require('../models/Student');
 const Course = require('../models/Course');
 const asyncHandler = require('../middleware/asyncHandler');
+const notificationLogger = require('../middleware/notificationLogger');
 
 /**
  * @desc    Get all students with pagination, search, filtering, and sorting
@@ -122,6 +123,7 @@ const createStudent = asyncHandler(async (req, res) => {
   }
   
   const student = await Student.create(req.body);
+  await notificationLogger.logStudentAdded(student);
   res.status(201).json(student);
 });
 
@@ -151,6 +153,7 @@ const updateStudent = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Student not found' });
   }
 
+  await notificationLogger.logStudentUpdated(student);
   res.json(student);
 });
 
@@ -166,6 +169,7 @@ const deleteStudent = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Student not found' });
   }
 
+  await notificationLogger.logStudentDeleted({ name: student.name });
   res.json({ message: 'Student deleted successfully' });
 });
 

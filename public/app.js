@@ -422,6 +422,7 @@ async function handleFormSubmit(event) {
     showToast(isEditing ? 'Student updated successfully' : 'Student added successfully', 'success');
     closeModal();
     await loadStudents();
+    updateNotificationBadge();
   } catch (error) {
     showModalMessage(error.message, 'error');
   } finally {
@@ -464,6 +465,7 @@ async function deleteStudent(studentId) {
     }
     
     await loadStudents();
+    updateNotificationBadge();
   } catch (error) {
     showToast(error.message, 'error');
   }
@@ -655,6 +657,8 @@ document.querySelectorAll('.nav-link').forEach(link => {
       showExportView();
     } else if (target === 'courses') {
       showCoursesView();
+    } else if (target === 'notifications') {
+      showNotificationsView();
     } else if (target === 'settings') {
       // Show settings info
       alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
@@ -689,24 +693,28 @@ async function loadReports() {
   }
 }
 
+// Helper to hide all views
+function hideAllViews() {
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView?.classList.add('hidden');
+  document.getElementById('reportsView')?.classList.add('hidden');
+  document.getElementById('exportView')?.classList.add('hidden');
+  document.getElementById('coursesView')?.classList.add('hidden');
+  document.getElementById('notificationsView')?.classList.add('hidden');
+}
+
 // Show dashboard view
 function showDashboardView() {
+  hideAllViews();
   const dashboardView = document.querySelector('#reportsView').previousElementSibling;
-  dashboardView.classList.remove('hidden');
-  document.getElementById('reportsView').classList.add('hidden');
-  document.getElementById('exportView').classList.add('hidden');
-  document.getElementById('coursesView')?.classList.add('hidden');
+  dashboardView?.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Show reports view
 async function showReportsView() {
-  // Hide dashboard view and show reports view
-  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
-  dashboardView.classList.add('hidden');
-  document.getElementById('reportsView').classList.remove('hidden');
-  document.getElementById('exportView')?.classList.add('hidden');
-  document.getElementById('coursesView')?.classList.add('hidden');
+  hideAllViews();
+  document.getElementById('reportsView')?.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Load and render reports
@@ -792,12 +800,8 @@ function renderReportsView(reports) {
 
 // Show export view
 function showExportView() {
-  // Hide dashboard and reports views, show export view
-  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
-  dashboardView.classList.add('hidden');
-  document.getElementById('reportsView').classList.add('hidden');
-  document.getElementById('exportView').classList.remove('hidden');
-  document.getElementById('coursesView')?.classList.add('hidden');
+  hideAllViews();
+  document.getElementById('exportView')?.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Render export history
@@ -1091,17 +1095,20 @@ function renderCoursesView() {
 
 // Show courses view
 function showCoursesView() {
-  // Hide other views
-  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
-  dashboardView.classList.add('hidden');
-  document.getElementById('reportsView').classList.add('hidden');
-  document.getElementById('exportView')?.classList.add('hidden');
-  
-  // Show courses view
-  courseElements.coursesView.classList.remove('hidden');
+  hideAllViews();
+  courseElements.coursesView?.classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   
   loadCourses();
+}
+
+// Show notifications view
+function showNotificationsView() {
+  hideAllViews();
+  document.getElementById('notificationsView')?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  loadNotifications();
 }
 
 // Search courses
@@ -1189,6 +1196,7 @@ async function saveCourse(event) {
     
     // Refresh course filter options in student form
     await populateCourseDropdown();
+    updateNotificationBadge();
   } catch (error) {
     console.error('Error saving course:', error);
     courseElements.courseModalMessage.textContent = error.message;
@@ -1222,6 +1230,7 @@ async function deleteCourse(courseId) {
     
     // Refresh course filter options in student form
     await populateCourseDropdown();
+    updateNotificationBadge();
   } catch (error) {
     console.error('Error deleting course:', error);
     showToast(error.message, 'error');
@@ -1323,3 +1332,222 @@ if (courseElements.closeCourseStudentsBtn) {
 
 // Populate course dropdown on page load
 populateCourseDropdown();
+
+// ========== Notification Functions ==========
+
+const notificationElements = {
+  notificationsView: document.getElementById('notificationsView'),
+  notificationBadge: document.getElementById('notificationBadge'),
+  notificationsLoadingState: document.getElementById('notificationsLoadingState'),
+  notificationsEmptyState: document.getElementById('notificationsEmptyState'),
+  notificationsList: document.getElementById('notificationsList'),
+  clearAllNotificationsBtn: document.getElementById('clearAllNotificationsBtn')
+};
+
+// Format relative time
+function formatRelativeTime(dateInput) {
+  const date = new Date(dateInput);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  
+  if (diffInSeconds < 60) return '< 1 minute ago';
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes === 1) return '1 minute ago';
+  if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours === 1) return '1 hour ago';
+  if (diffInHours < 24) return `${diffInHours} hours ago`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return 'yesterday';
+  return `${diffInDays} days ago`;
+}
+
+// Map notification type to icon/badge
+function getNotificationIcon(type) {
+  switch (type) {
+    case 'student_added':
+      return '👤 ➕';
+    case 'student_updated':
+      return '👤 ✏️';
+    case 'student_deleted':
+      return '👤 🗑️';
+    case 'course_added':
+      return '📚 ➕';
+    case 'course_updated':
+      return '📚 ✏️';
+    case 'course_deleted':
+      return '📚 🗑️';
+    default:
+      return '🔔';
+  }
+}
+
+// Load notifications from API
+async function loadNotifications() {
+  try {
+    if (notificationElements.notificationsLoadingState) {
+      notificationElements.notificationsLoadingState.classList.remove('hidden');
+    }
+    notificationElements.notificationsEmptyState?.classList.add('hidden');
+    notificationElements.notificationsList?.classList.add('hidden');
+
+    const response = await fetch('/api/notifications');
+    if (!response.ok) throw new Error('Failed to fetch notifications');
+
+    const notifications = await response.json();
+    renderNotificationsView(notifications);
+    updateNotificationBadge(notifications);
+  } catch (error) {
+    console.error('Error loading notifications:', error);
+    showToast('Failed to load notifications', 'error');
+  } finally {
+    if (notificationElements.notificationsLoadingState) {
+      notificationElements.notificationsLoadingState.classList.add('hidden');
+    }
+  }
+}
+
+// Render notifications view
+function renderNotificationsView(notifications = []) {
+  if (!notificationElements.notificationsList) return;
+
+  if (notifications.length === 0) {
+    notificationElements.notificationsEmptyState?.classList.remove('hidden');
+    notificationElements.notificationsList?.classList.add('hidden');
+    notificationElements.notificationsList.innerHTML = '';
+    return;
+  }
+
+  notificationElements.notificationsEmptyState?.classList.add('hidden');
+  notificationElements.notificationsList?.classList.remove('hidden');
+
+  notificationElements.notificationsList.innerHTML = notifications.map(notification => {
+    const isUnread = !notification.isRead;
+    const borderClass = isUnread ? 'border-accent bg-secondary-bg' : 'border-border-color bg-primary-bg opacity-80';
+    const relativeTime = formatRelativeTime(notification.createdAt);
+    const icon = getNotificationIcon(notification.type);
+
+    return `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-sm border-2 ${borderClass} transition-colors duration-200" data-id="${notification._id}">
+        <div class="flex items-start sm:items-center gap-3">
+          <span class="text-xl p-2 rounded-sm border border-border-color bg-primary-bg">${icon}</span>
+          <div>
+            <p class="font-bold text-primary-text text-sm sm:text-base">${escapeHtml(notification.message)}</p>
+            <p class="text-xs text-secondary-text mt-1">${relativeTime} ${isUnread ? '<span class="ml-2 inline-block px-2 py-0.5 text-[10px] uppercase font-black bg-accent text-primary-bg rounded-sm">New</span>' : ''}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          ${isUnread ? `
+            <button
+              onclick="markNotificationAsRead('${notification._id}')"
+              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+            >
+              Mark Read
+            </button>
+          ` : ''}
+          <button
+            onclick="deleteNotification('${notification._id}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200"
+            title="Delete notification"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Mark notification as read
+async function markNotificationAsRead(id) {
+  try {
+    const response = await fetch(`/api/notifications/${id}/read`, {
+      method: 'PUT'
+    });
+    if (!response.ok) throw new Error('Failed to mark notification as read');
+
+    showToast('Marked as read', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Delete notification
+async function deleteNotification(id) {
+  try {
+    const response = await fetch(`/api/notifications/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete notification');
+
+    showToast('Notification deleted', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Clear all notifications
+async function clearAllNotifications() {
+  if (!confirm('Are you sure you want to clear all notifications?')) {
+    return;
+  }
+  try {
+    const response = await fetch('/api/notifications', {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to clear notifications');
+
+    showToast('All notifications cleared', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error clearing notifications:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Update notification badge
+async function updateNotificationBadge(cachedNotifications = null) {
+  try {
+    let notifications = cachedNotifications;
+    if (!notifications) {
+      const response = await fetch('/api/notifications');
+      if (!response.ok) return;
+      notifications = await response.json();
+    }
+
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const badge = notificationElements.notificationBadge || document.getElementById('notificationBadge');
+
+    if (badge) {
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.textContent = '0';
+        badge.classList.add('hidden');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating notification badge:', error);
+  }
+}
+
+// Expose handlers for inline HTML onclick
+window.markNotificationAsRead = markNotificationAsRead;
+window.deleteNotification = deleteNotification;
+
+// Setup notification event listeners
+if (notificationElements.clearAllNotificationsBtn) {
+  notificationElements.clearAllNotificationsBtn.addEventListener('click', clearAllNotifications);
+}
+
+// Poll notifications every 30 seconds
+setInterval(updateNotificationBadge, 30000);
+
+// Initial badge update
+updateNotificationBadge();
+

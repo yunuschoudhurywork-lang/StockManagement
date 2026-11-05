@@ -62,6 +62,12 @@
               </a>
             </li>
             <li>
+              <a href="#" class="nav-link relative flex items-center justify-between rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Notifications</span>
+                <span id="notificationBadge" class="hidden rounded-full bg-error px-2 py-0.5 text-xs font-black text-white">0</span>
+              </a>
+            </li>
+            <li>
               <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
                 <span>Settings</span>
               </a>
@@ -489,6 +495,46 @@
               <tbody id="coursesTableBody"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- Notifications View (Hidden by default) -->
+      <div id="notificationsView" class="p-6 hidden">
+        <!-- Page Title & Header Actions -->
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 class="text-5xl font-black uppercase tracking-tight text-primary-text md:text-6xl">
+              Notifications
+            </h1>
+            <div class="mt-2 h-2 w-32 bg-accent"></div>
+            <p class="mt-4 text-secondary-text text-sm">System audit events and real-time activity alerts.</p>
+          </div>
+          <div>
+            <button
+              id="clearAllNotificationsBtn"
+              class="rounded-sm border-2 border-border-color bg-secondary-bg px-4 py-3 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            >
+              Clear All Notifications
+            </button>
+          </div>
+        </div>
+
+        <!-- Notifications Container -->
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <!-- Loading State -->
+          <div id="notificationsLoadingState" class="hidden p-12 text-center">
+            <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
+            <p class="mt-4 text-secondary-text uppercase tracking-wide font-bold text-sm">Loading notifications...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div id="notificationsEmptyState" class="hidden p-12 text-center">
+            <p class="text-2xl font-black uppercase text-secondary-text">No Notifications</p>
+            <p class="mt-2 text-secondary-text text-sm">No activity recorded yet.</p>
+          </div>
+
+          <!-- Notification List -->
+          <div id="notificationsList" class="space-y-3"></div>
         </div>
       </div>
     </main>
