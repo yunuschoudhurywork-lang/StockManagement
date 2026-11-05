@@ -22,6 +22,15 @@ beforeEach(async () => {
   for (const key in collections) {
     await collections[key].deleteMany({});
   }
+  
+  // Seed a default course for student tests to use
+  // This ensures existing student tests don't break when course validation is enforced
+  const Course = require('../models/Course');
+  await Course.create({
+    name: 'Computer Science',
+    description: 'Default test course',
+    capacity: 100
+  });
 });
 
 // Stop MongoDB and close connections after all tests

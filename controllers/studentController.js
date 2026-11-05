@@ -1,4 +1,5 @@
 const Student = require('../models/Student');
+const Course = require('../models/Course');
 const asyncHandler = require('../middleware/asyncHandler');
 
 /**
@@ -109,6 +110,17 @@ const getAllStudents = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const createStudent = asyncHandler(async (req, res) => {
+  // Validate that the course exists in the Course collection
+  // This enforces referential integrity between students and courses
+  if (req.body.course) {
+    const courseExists = await Course.findOne({ name: req.body.course });
+    if (!courseExists) {
+      return res.status(400).json({
+        message: 'Course does not exist. Please select a valid course from the courses list.'
+      });
+    }
+  }
+  
   const student = await Student.create(req.body);
   res.status(201).json(student);
 });
@@ -119,6 +131,17 @@ const createStudent = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const updateStudent = asyncHandler(async (req, res) => {
+  // Validate that the course exists in the Course collection if course is being updated
+  // This enforces referential integrity between students and courses
+  if (req.body.course) {
+    const courseExists = await Course.findOne({ name: req.body.course });
+    if (!courseExists) {
+      return res.status(400).json({
+        message: 'Course does not exist. Please select a valid course from the courses list.'
+      });
+    }
+  }
+  
   const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true

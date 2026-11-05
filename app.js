@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const studentRoutes = require('./routes/studentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const courseRoutes = require('./routes/courseRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
@@ -73,6 +74,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/students', studentRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/courses', courseRoutes);
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {

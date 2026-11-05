@@ -299,9 +299,9 @@ function openModal(mode = 'add', student = null) {
     elements.studentId.value = student._id;
     elements.nameInput.value = student.name;
     elements.emailInput.value = student.email;
-    elements.courseInput.value = student.course;
     elements.phoneInput.value = student.phone;
     elements.ageInput.value = student.age;
+    populateCourseDropdown(student.course);
   } else {
     elements.modalTitle.textContent = 'Add Student';
     elements.submitBtn.textContent = 'Save Student';
@@ -309,6 +309,7 @@ function openModal(mode = 'add', student = null) {
     // Clear form
     elements.studentForm.reset();
     elements.studentId.value = '';
+    populateCourseDropdown('');
   }
   
   // Clear message
@@ -652,6 +653,8 @@ document.querySelectorAll('.nav-link').forEach(link => {
       showReportsView();
     } else if (target === 'export data') {
       showExportView();
+    } else if (target === 'courses') {
+      showCoursesView();
     } else if (target === 'settings') {
       // Show settings info
       alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
@@ -692,6 +695,7 @@ function showDashboardView() {
   dashboardView.classList.remove('hidden');
   document.getElementById('reportsView').classList.add('hidden');
   document.getElementById('exportView').classList.add('hidden');
+  document.getElementById('coursesView')?.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -701,6 +705,8 @@ async function showReportsView() {
   const dashboardView = document.querySelector('#reportsView').previousElementSibling;
   dashboardView.classList.add('hidden');
   document.getElementById('reportsView').classList.remove('hidden');
+  document.getElementById('exportView')?.classList.add('hidden');
+  document.getElementById('coursesView')?.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Load and render reports
@@ -791,6 +797,7 @@ function showExportView() {
   dashboardView.classList.add('hidden');
   document.getElementById('reportsView').classList.add('hidden');
   document.getElementById('exportView').classList.remove('hidden');
+  document.getElementById('coursesView')?.classList.add('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Render export history
@@ -968,3 +975,351 @@ document.getElementById('exportFilteredBtn')?.addEventListener('click', () => {
   const format = document.querySelector('input[name="exportFormat"]:checked').value;
   exportData(format, true);
 });
+
+// ========== Course Management Functions ==========
+
+// State for courses
+const courseState = {
+  allCourses: [],
+  filteredCourses: []
+};
+
+// Course DOM elements
+const courseElements = {
+  coursesView: document.getElementById('coursesView'),
+  courseSearchInput: document.getElementById('courseSearchInput'),
+  addCourseBtn: document.getElementById('addCourseBtn'),
+  coursesLoadingState: document.getElementById('coursesLoadingState'),
+  coursesEmptyState: document.getElementById('coursesEmptyState'),
+  coursesTableContainer: document.getElementById('coursesTableContainer'),
+  coursesTableBody: document.getElementById('coursesTableBody'),
+  
+  // Course Modal
+  courseModalOverlay: document.getElementById('courseModalOverlay'),
+  courseModalTitle: document.getElementById('courseModalTitle'),
+  courseForm: document.getElementById('courseForm'),
+  courseId: document.getElementById('courseId'),
+  courseName: document.getElementById('courseName'),
+  courseDescription: document.getElementById('courseDescription'),
+  courseCapacity: document.getElementById('courseCapacity'),
+  courseModalMessage: document.getElementById('courseModalMessage'),
+  submitCourseBtn: document.getElementById('submitCourseBtn'),
+  closeCourseModalBtn: document.getElementById('closeCourseModalBtn'),
+  cancelCourseModalBtn: document.getElementById('cancelCourseModalBtn'),
+  
+  // Course Students Modal
+  courseStudentsModalOverlay: document.getElementById('courseStudentsModalOverlay'),
+  courseStudentsCourseName: document.getElementById('courseStudentsCourseName'),
+  courseStudentsLoadingState: document.getElementById('courseStudentsLoadingState'),
+  courseStudentsEmptyState: document.getElementById('courseStudentsEmptyState'),
+  courseStudentsList: document.getElementById('courseStudentsList'),
+  closeCourseStudentsModalBtn: document.getElementById('closeCourseStudentsModalBtn'),
+  closeCourseStudentsBtn: document.getElementById('closeCourseStudentsBtn')
+};
+
+// Load courses from API
+async function loadCourses() {
+  try {
+    courseElements.coursesLoadingState.classList.remove('hidden');
+    courseElements.coursesEmptyState.classList.add('hidden');
+    courseElements.coursesTableContainer.classList.add('hidden');
+    
+    const response = await fetch('/api/courses');
+    if (!response.ok) throw new Error('Failed to fetch courses');
+    
+    const courses = await response.json();
+    courseState.allCourses = courses;
+    courseState.filteredCourses = courses;
+    
+    renderCoursesView();
+  } catch (error) {
+    console.error('Error loading courses:', error);
+    showToast('Failed to load courses', 'error');
+  } finally {
+    courseElements.coursesLoadingState.classList.add('hidden');
+  }
+}
+
+// Render courses table
+function renderCoursesView() {
+  const courses = courseState.filteredCourses;
+  
+  if (courses.length === 0) {
+    courseElements.coursesEmptyState.classList.remove('hidden');
+    courseElements.coursesTableContainer.classList.add('hidden');
+    return;
+  }
+  
+  courseElements.coursesEmptyState.classList.add('hidden');
+  courseElements.coursesTableContainer.classList.remove('hidden');
+  
+  courseElements.coursesTableBody.innerHTML = courses.map(course => `
+    <tr class="border-b-2 border-border-color hover:bg-primary-bg transition-colors duration-200">
+      <td class="px-4 py-4 font-bold text-primary-text">${escapeHtml(course.name)}</td>
+      <td class="px-4 py-4 text-secondary-text">${escapeHtml(course.description || 'N/A')}</td>
+      <td class="px-4 py-4 text-secondary-text">${course.capacity || 'N/A'}</td>
+      <td class="px-4 py-4">
+        <span class="inline-block rounded-sm bg-accent px-3 py-1 text-xs font-bold text-primary-bg">
+          ${course.studentCount}
+        </span>
+      </td>
+      <td class="px-4 py-4 text-right">
+        <div class="flex justify-end gap-2">
+          <button 
+            onclick="viewCourseStudents('${escapeHtml(course.name)}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+          >
+            View Students
+          </button>
+          <button 
+            onclick="editCourse('${course._id}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+          >
+            Edit
+          </button>
+          <button 
+            onclick="deleteCourse('${course._id}')"
+            class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Show courses view
+function showCoursesView() {
+  // Hide other views
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView.classList.add('hidden');
+  document.getElementById('reportsView').classList.add('hidden');
+  document.getElementById('exportView')?.classList.add('hidden');
+  
+  // Show courses view
+  courseElements.coursesView.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  loadCourses();
+}
+
+// Search courses
+const searchCourses = debounce(() => {
+  const searchTerm = courseElements.courseSearchInput.value.toLowerCase().trim();
+  
+  if (searchTerm === '') {
+    courseState.filteredCourses = courseState.allCourses;
+  } else {
+    courseState.filteredCourses = courseState.allCourses.filter(course =>
+      course.name.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  renderCoursesView();
+}, 300);
+
+// Open course modal for adding
+function openAddCourseModal() {
+  courseElements.courseModalTitle.textContent = 'Add Course';
+  courseElements.courseForm.reset();
+  courseElements.courseId.value = '';
+  courseElements.courseModalMessage.classList.add('hidden');
+  courseElements.submitCourseBtn.textContent = 'Save Course';
+  courseElements.courseModalOverlay.classList.remove('hidden');
+}
+
+// Open course modal for editing
+async function editCourse(courseId) {
+  try {
+    const course = courseState.allCourses.find(c => c._id === courseId);
+    if (!course) throw new Error('Course not found');
+    
+    courseElements.courseModalTitle.textContent = 'Edit Course';
+    courseElements.courseId.value = course._id;
+    courseElements.courseName.value = course.name;
+    courseElements.courseDescription.value = course.description || '';
+    courseElements.courseCapacity.value = course.capacity || '';
+    courseElements.courseModalMessage.classList.add('hidden');
+    courseElements.submitCourseBtn.textContent = 'Update Course';
+    courseElements.courseModalOverlay.classList.remove('hidden');
+  } catch (error) {
+    console.error('Error editing course:', error);
+    showToast('Failed to load course data', 'error');
+  }
+}
+
+// Close course modal
+function closeCourseModal() {
+  courseElements.courseModalOverlay.classList.add('hidden');
+  courseElements.courseForm.reset();
+  courseElements.courseModalMessage.classList.add('hidden');
+}
+
+// Add/Update course
+async function saveCourse(event) {
+  event.preventDefault();
+  
+  const courseId = courseElements.courseId.value;
+  const courseData = {
+    name: courseElements.courseName.value.trim(),
+    description: courseElements.courseDescription.value.trim(),
+    capacity: courseElements.courseCapacity.value ? parseInt(courseElements.courseCapacity.value) : undefined
+  };
+  
+  try {
+    const url = courseId ? `/api/courses/${courseId}` : '/api/courses';
+    const method = courseId ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(courseData)
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to save course');
+    }
+    
+    showToast(courseId ? 'Course updated successfully' : 'Course added successfully', 'success');
+    closeCourseModal();
+    await loadCourses();
+    
+    // Refresh course filter options in student form
+    await populateCourseDropdown();
+  } catch (error) {
+    console.error('Error saving course:', error);
+    courseElements.courseModalMessage.textContent = error.message;
+    courseElements.courseModalMessage.className = 'mb-4 rounded-sm px-4 py-3 text-sm font-bold bg-error border-2 border-error text-primary-bg';
+    courseElements.courseModalMessage.classList.remove('hidden');
+  }
+}
+
+// Delete course
+async function deleteCourse(courseId) {
+  const course = courseState.allCourses.find(c => c._id === courseId);
+  if (!course) return;
+  
+  if (!confirm(`Are you sure you want to delete the course "${course.name}"?`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/courses/${courseId}`, {
+      method: 'DELETE'
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to delete course');
+    }
+    
+    showToast('Course deleted successfully', 'success');
+    await loadCourses();
+    
+    // Refresh course filter options in student form
+    await populateCourseDropdown();
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// View course students
+async function viewCourseStudents(courseName) {
+  try {
+    courseElements.courseStudentsCourseName.textContent = `Course: ${courseName}`;
+    courseElements.courseStudentsLoadingState.classList.remove('hidden');
+    courseElements.courseStudentsEmptyState.classList.add('hidden');
+    courseElements.courseStudentsList.classList.add('hidden');
+    courseElements.courseStudentsModalOverlay.classList.remove('hidden');
+    
+    const response = await fetch(`/api/courses/${encodeURIComponent(courseName)}/students`);
+    if (!response.ok) throw new Error('Failed to fetch students');
+    
+    const data = await response.json();
+    const students = data.students;
+    
+    courseElements.courseStudentsLoadingState.classList.add('hidden');
+    
+    if (students.length === 0) {
+      courseElements.courseStudentsEmptyState.classList.remove('hidden');
+    } else {
+      courseElements.courseStudentsList.classList.remove('hidden');
+      courseElements.courseStudentsList.innerHTML = students.map(student => `
+        <div class="rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3">
+          <p class="font-bold text-primary-text">${escapeHtml(student.name)}</p>
+          <p class="text-xs text-secondary-text">${escapeHtml(student.email)} • Age: ${student.age} • Phone: ${escapeHtml(student.phone)}</p>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    console.error('Error loading course students:', error);
+    showToast('Failed to load students', 'error');
+    closeCourseStudentsModal();
+  }
+}
+
+// Close course students modal
+function closeCourseStudentsModal() {
+  courseElements.courseStudentsModalOverlay.classList.add('hidden');
+  courseElements.courseStudentsList.innerHTML = '';
+}
+
+// Populate course dropdown in student form
+async function populateCourseDropdown(selectedCourse = '') {
+  try {
+    const response = await fetch('/api/courses');
+    if (!response.ok) throw new Error('Failed to fetch courses');
+    
+    const courses = await response.json();
+    const courseSelect = document.getElementById('course');
+    if (courseSelect) {
+      const currentValue = selectedCourse !== undefined && selectedCourse !== '' ? selectedCourse : courseSelect.value;
+      courseSelect.innerHTML = '<option value="">Select a course</option>' +
+        courses.map(course => 
+          `<option value="${escapeHtml(course.name)}" ${course.name === currentValue ? 'selected' : ''}>
+            ${escapeHtml(course.name)}
+          </option>`
+        ).join('');
+      elements.courseInput = courseSelect;
+    }
+  } catch (error) {
+    console.error('Error populating course dropdown:', error);
+  }
+}
+
+// Setup course event listeners
+if (courseElements.courseSearchInput) {
+  courseElements.courseSearchInput.addEventListener('input', searchCourses);
+}
+
+if (courseElements.addCourseBtn) {
+  courseElements.addCourseBtn.addEventListener('click', openAddCourseModal);
+}
+
+if (courseElements.closeCourseModalBtn) {
+  courseElements.closeCourseModalBtn.addEventListener('click', closeCourseModal);
+}
+
+if (courseElements.cancelCourseModalBtn) {
+  courseElements.cancelCourseModalBtn.addEventListener('click', closeCourseModal);
+}
+
+if (courseElements.courseForm) {
+  courseElements.courseForm.addEventListener('submit', saveCourse);
+}
+
+if (courseElements.closeCourseStudentsModalBtn) {
+  courseElements.closeCourseStudentsModalBtn.addEventListener('click', closeCourseStudentsModal);
+}
+
+if (courseElements.closeCourseStudentsBtn) {
+  courseElements.closeCourseStudentsBtn.addEventListener('click', closeCourseStudentsModal);
+}
+
+// Populate course dropdown on page load
+populateCourseDropdown();

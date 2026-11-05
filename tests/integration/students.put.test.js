@@ -22,7 +22,7 @@ describe('PUT /api/students/:id', () => {
   test('should return 200 status code', async () => {
     const res = await request(app)
       .put(`/api/students/${existingStudent._id}`)
-      .send({ course: 'Physics' });
+      .send({ age: 22 });
     expect(res.statusCode).toBe(200);
   });
 

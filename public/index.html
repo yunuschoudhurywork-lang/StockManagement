@@ -58,6 +58,11 @@
             </li>
             <li>
               <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
+                <span>Courses</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link flex items-center gap-3 rounded-sm border-2 border-border-color px-4 py-3 font-bold text-primary-text uppercase text-sm tracking-wide hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200">
                 <span>Settings</span>
               </a>
             </li>
@@ -417,7 +422,205 @@
           </div>
         </div>
       </div>
+
+      <!-- Courses View (Hidden by default) -->
+      <div id="coursesView" class="p-6 hidden">
+        <!-- Page Title -->
+        <div class="mb-8">
+          <h1 class="text-5xl font-black uppercase tracking-tight text-primary-text md:text-6xl">
+            Course Management
+          </h1>
+          <div class="mt-2 h-2 w-32 bg-accent"></div>
+          <p class="mt-4 text-secondary-text text-sm">Manage courses, view enrollments, and track capacity.</p>
+        </div>
+
+        <!-- Search & Controls -->
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+          <div class="grid gap-4 md:grid-cols-2">
+            <!-- Search Input -->
+            <div>
+              <label class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Search Courses</label>
+              <input 
+                id="courseSearchInput" 
+                type="text" 
+                placeholder="Search by course name..." 
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+              />
+            </div>
+
+            <!-- Add Course Button -->
+            <div class="flex items-end">
+              <button 
+                id="addCourseBtn" 
+                class="w-full rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              >
+                + Add Course
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Courses Table -->
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden">
+          <!-- Loading State -->
+          <div id="coursesLoadingState" class="hidden p-12 text-center">
+            <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
+            <p class="mt-4 text-secondary-text uppercase tracking-wide font-bold text-sm">Loading...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div id="coursesEmptyState" class="hidden p-12 text-center">
+            <p class="text-2xl font-black uppercase text-secondary-text">No Courses Found</p>
+            <p class="mt-2 text-secondary-text text-sm">Add your first course to get started</p>
+          </div>
+
+          <!-- Table -->
+          <div id="coursesTableContainer" class="overflow-x-auto">
+            <table class="w-full min-w-[720px] border-collapse text-left">
+              <thead>
+                <tr class="border-b-2 border-border-color bg-primary-bg">
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text">Course Name</th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text">Description</th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text">Capacity</th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text">Enrolled</th>
+                  <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="coursesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </main>
+
+    <!-- Course Modal Overlay -->
+    <div id="courseModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6">
+          <!-- Modal Header -->
+          <div class="mb-6 flex items-center justify-between">
+            <h2 id="courseModalTitle" class="text-2xl font-black uppercase tracking-tight text-accent">Add Course</h2>
+            <button 
+              id="closeCourseModalBtn" 
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Form -->
+          <form id="courseForm">
+            <input id="courseId" type="hidden" />
+
+            <!-- Course Name -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Course Name</span>
+              <input
+                id="courseName"
+                type="text"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="Computer Science"
+                minlength="2"
+                maxlength="100"
+                required
+              />
+            </label>
+
+            <!-- Description -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Description</span>
+              <textarea
+                id="courseDescription"
+                rows="3"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="Course description (optional)"
+                maxlength="500"
+              ></textarea>
+            </label>
+
+            <!-- Capacity -->
+            <label class="mb-6 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Capacity</span>
+              <input
+                id="courseCapacity"
+                type="number"
+                min="1"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                placeholder="50 (optional)"
+              />
+            </label>
+
+            <!-- Modal Message -->
+            <p id="courseModalMessage" class="mb-4 hidden rounded-sm px-4 py-3 text-sm font-bold"></p>
+
+            <!-- Form Buttons -->
+            <div class="flex gap-3">
+              <button
+                id="cancelCourseModalBtn"
+                type="button"
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                id="submitCourseBtn"
+                type="submit"
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              >
+                Save Course
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Course Students Modal -->
+    <div id="courseStudentsModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6">
+          <!-- Modal Header -->
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black uppercase tracking-tight text-accent">Enrolled Students</h2>
+              <p id="courseStudentsCourseName" class="mt-1 text-sm text-secondary-text"></p>
+            </div>
+            <button 
+              id="closeCourseStudentsModalBtn" 
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Students List -->
+          <div id="courseStudentsListContainer" class="max-h-96 overflow-y-auto">
+            <div id="courseStudentsLoadingState" class="hidden p-8 text-center">
+              <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
+            </div>
+            <div id="courseStudentsEmptyState" class="hidden p-8 text-center">
+              <p class="text-secondary-text">No students enrolled in this course yet.</p>
+            </div>
+            <div id="courseStudentsList" class="space-y-2"></div>
+          </div>
+
+          <!-- Close Button -->
+          <div class="mt-6">
+            <button
+              id="closeCourseStudentsBtn"
+              type="button"
+              class="w-full rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal Overlay -->
     <div id="modalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
@@ -472,15 +675,13 @@
             <!-- Course -->
             <label class="mb-4 block">
               <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Course</span>
-              <input
+              <select
                 id="course"
-                type="text"
-                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
-                placeholder="MERN Stack"
-                minlength="2"
-                maxlength="100"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text outline-none focus:border-accent transition-colors duration-200"
                 required
-              />
+              >
+                <option value="">Select a course</option>
+              </select>
             </label>
 
             <!-- Phone -->
