@@ -299,9 +299,9 @@ function openModal(mode = 'add', student = null) {
     elements.studentId.value = student._id;
     elements.nameInput.value = student.name;
     elements.emailInput.value = student.email;
-    elements.courseInput.value = student.course;
     elements.phoneInput.value = student.phone;
     elements.ageInput.value = student.age;
+    populateCourseDropdown(student.course);
   } else {
     elements.modalTitle.textContent = 'Add Student';
     elements.submitBtn.textContent = 'Save Student';
@@ -309,6 +309,7 @@ function openModal(mode = 'add', student = null) {
     // Clear form
     elements.studentForm.reset();
     elements.studentId.value = '';
+    populateCourseDropdown('');
   }
   
   // Clear message
@@ -421,6 +422,7 @@ async function handleFormSubmit(event) {
     showToast(isEditing ? 'Student updated successfully' : 'Student added successfully', 'success');
     closeModal();
     await loadStudents();
+    updateNotificationBadge();
   } catch (error) {
     showModalMessage(error.message, 'error');
   } finally {
@@ -463,6 +465,7 @@ async function deleteStudent(studentId) {
     }
     
     await loadStudents();
+    updateNotificationBadge();
   } catch (error) {
     showToast(error.message, 'error');
   }
@@ -643,11 +646,19 @@ document.querySelectorAll('.nav-link').forEach(link => {
     
     // Handle navigation
     if (target === 'dashboard') {
-      // Scroll to top to show dashboard
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showDashboardView();
     } else if (target === 'students') {
+      showDashboardView();
       // Scroll to student table
       elements.tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (target === 'reports') {
+      showReportsView();
+    } else if (target === 'export data') {
+      showExportView();
+    } else if (target === 'courses') {
+      showCoursesView();
+    } else if (target === 'notifications') {
+      showNotificationsView();
     } else if (target === 'settings') {
       // Show settings info
       alert('⚙️ Settings Panel\n\nComing Soon!\n\n• User preferences\n• System configuration\n• Export/Import data\n• Theme customization\n\nFor now, all student management features are available in the Dashboard view.');
@@ -657,3 +668,886 @@ document.querySelectorAll('.nav-link').forEach(link => {
 
 // Initialize
 loadStudents();
+
+// ========== Reports & Analytics Functions ==========
+
+// Load reports data from API
+async function loadReports() {
+  try {
+    const [overview, courseDistribution, ageDistribution, enrollmentTrends] = await Promise.all([
+      fetch('/api/reports/overview').then(res => res.json()),
+      fetch('/api/reports/course-distribution').then(res => res.json()),
+      fetch('/api/reports/age-distribution').then(res => res.json()),
+      fetch('/api/reports/enrollment-trends').then(res => res.json())
+    ]);
+
+    return {
+      overview,
+      courseDistribution,
+      ageDistribution,
+      enrollmentTrends
+    };
+  } catch (error) {
+    showToast('Failed to load reports data', 'error');
+    throw error;
+  }
+}
+
+// Helper to hide all views
+function hideAllViews() {
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView?.classList.add('hidden');
+  document.getElementById('reportsView')?.classList.add('hidden');
+  document.getElementById('exportView')?.classList.add('hidden');
+  document.getElementById('coursesView')?.classList.add('hidden');
+  document.getElementById('notificationsView')?.classList.add('hidden');
+}
+
+// Show dashboard view
+function showDashboardView() {
+  hideAllViews();
+  const dashboardView = document.querySelector('#reportsView').previousElementSibling;
+  dashboardView?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Show reports view
+async function showReportsView() {
+  hideAllViews();
+  document.getElementById('reportsView')?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Load and render reports
+  try {
+    const reports = await loadReports();
+    renderReportsView(reports);
+  } catch (error) {
+    console.error('Error loading reports:', error);
+  }
+}
+
+// Render reports view with data
+function renderReportsView(reports) {
+  // Update overview statistics
+  document.getElementById('reportTotalStudents').textContent = reports.overview.totalStudents;
+  document.getElementById('reportTotalCourses').textContent = reports.overview.totalCourses;
+  document.getElementById('reportAverageAge').textContent = reports.overview.avgAge;
+
+  // Render course distribution chart
+  const courseChart = document.getElementById('courseDistributionChart');
+  if (reports.courseDistribution.length === 0) {
+    courseChart.innerHTML = '<p class="text-secondary-text text-sm">No course data available</p>';
+  } else {
+    courseChart.innerHTML = reports.courseDistribution.map(item => `
+      <div>
+        <div class="flex justify-between mb-2">
+          <span class="text-primary-text font-bold text-sm">${escapeHtml(item.course)}</span>
+          <span class="text-secondary-text text-sm">${item.count} students (${item.percentage}%)</span>
+        </div>
+        <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+          <div class="h-full bg-accent transition-all duration-500" style="width: ${item.percentage}%"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render age distribution chart
+  const ageChart = document.getElementById('ageDistributionChart');
+  if (reports.ageDistribution.length === 0) {
+    ageChart.innerHTML = '<p class="text-secondary-text text-sm">No age data available</p>';
+  } else {
+    const maxCount = Math.max(...reports.ageDistribution.map(item => item.count));
+    ageChart.innerHTML = reports.ageDistribution.map(item => {
+      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+      return `
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-primary-text font-bold text-sm">${escapeHtml(item.range)} years</span>
+            <span class="text-secondary-text text-sm">${item.count} students</span>
+          </div>
+          <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+            <div class="h-full bg-accent transition-all duration-500" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render enrollment trends chart
+  const trendsChart = document.getElementById('enrollmentTrendsChart');
+  if (reports.enrollmentTrends.length === 0) {
+    trendsChart.innerHTML = '<p class="text-secondary-text text-sm">No enrollment data available for the last 6 months</p>';
+  } else {
+    const maxCount = Math.max(...reports.enrollmentTrends.map(item => item.count));
+    trendsChart.innerHTML = reports.enrollmentTrends.map(item => {
+      const percentage = maxCount > 0 ? (item.count / maxCount) * 100 : 0;
+      return `
+        <div>
+          <div class="flex justify-between mb-2">
+            <span class="text-primary-text font-bold text-sm">${escapeHtml(item.month)}</span>
+            <span class="text-secondary-text text-sm">${item.count} enrollments</span>
+          </div>
+          <div class="h-8 rounded-sm border-2 border-border-color bg-primary-bg overflow-hidden">
+            <div class="h-full bg-accent transition-all duration-500" style="width: ${percentage}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// ========== Export Data Functions ==========
+
+// Show export view
+function showExportView() {
+  hideAllViews();
+  document.getElementById('exportView')?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Render export history
+  renderExportHistory();
+
+  // Setup format selector handlers
+  setupExportFormatHandlers();
+}
+
+// Setup export format selector handlers
+function setupExportFormatHandlers() {
+  const formatRadios = document.querySelectorAll('input[name="exportFormat"]');
+  
+  formatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      // Update UI for selected format
+      document.querySelectorAll('.export-format-option').forEach(option => {
+        option.classList.remove('bg-accent', 'text-primary-bg', 'border-accent');
+        option.classList.add('border-border-color', 'text-primary-text');
+      });
+      
+      const selectedOption = e.target.parentElement.querySelector('.export-format-option');
+      selectedOption.classList.add('bg-accent', 'text-primary-bg', 'border-accent');
+      selectedOption.classList.remove('border-border-color', 'text-primary-text');
+    });
+  });
+}
+
+// Export data function
+async function exportData(format, filtered = false) {
+  const exportMessage = document.getElementById('exportMessage');
+  
+  try {
+    // Show loading message
+    exportMessage.textContent = 'Preparing export...';
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-secondary-bg border-2 border-accent text-accent';
+    exportMessage.classList.remove('hidden');
+
+    let response;
+
+    if (filtered) {
+      // Export filtered data using POST /api/export/filtered
+      const body = {
+        format,
+        search: state.search || undefined,
+        course: state.courseFilter || undefined,
+        minAge: state.minAge || undefined,
+        maxAge: state.maxAge || undefined
+      };
+
+      response = await fetch('/api/export/filtered', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+    } else {
+      // Export all data using GET /api/export/csv or /api/export/json
+      response = await fetch(`/api/export/${format}`);
+    }
+
+    if (!response.ok) {
+      throw new Error('Export failed');
+    }
+
+    // Get the blob from response
+    const blob = await response.blob();
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students_export_${Date.now()}.${format === 'csv' ? 'csv' : 'json'}`;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    // Show success message
+    exportMessage.textContent = `✓ Export successful! File downloaded as ${format.toUpperCase()}`;
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-success border-2 border-success text-primary-bg';
+    
+    // Update export history
+    updateExportHistory(format, filtered);
+    renderExportHistory();
+
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      exportMessage.classList.add('hidden');
+    }, 3000);
+
+  } catch (error) {
+    // Show error message
+    exportMessage.textContent = '✗ Export failed. Please try again.';
+    exportMessage.className = 'mt-4 rounded-sm px-4 py-3 text-sm font-bold bg-error border-2 border-error text-primary-bg';
+    
+    console.error('Export error:', error);
+  }
+}
+
+// Update export history in localStorage
+function updateExportHistory(format, filtered) {
+  const history = JSON.parse(localStorage.getItem('exportHistory') || '[]');
+  
+  const newEntry = {
+    format: format.toUpperCase(),
+    type: filtered ? 'Filtered' : 'All Students',
+    timestamp: Date.now()
+  };
+  
+  // Add to beginning and keep only last 5
+  history.unshift(newEntry);
+  if (history.length > 5) {
+    history.pop();
+  }
+  
+  localStorage.setItem('exportHistory', JSON.stringify(history));
+}
+
+// Render export history
+function renderExportHistory() {
+  const historyList = document.getElementById('exportHistoryList');
+  const history = JSON.parse(localStorage.getItem('exportHistory') || '[]');
+  
+  if (history.length === 0) {
+    historyList.innerHTML = '<p class="text-secondary-text text-sm">No export history yet.</p>';
+    return;
+  }
+  
+  historyList.innerHTML = history.map(entry => {
+    const relativeTime = getRelativeTime(entry.timestamp);
+    return `
+      <div class="flex items-center justify-between rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3">
+        <div>
+          <p class="text-primary-text font-bold text-sm">${escapeHtml(entry.type)} - ${escapeHtml(entry.format)}</p>
+          <p class="text-secondary-text text-xs">${relativeTime}</p>
+        </div>
+        <span class="text-accent font-bold text-xs uppercase">Downloaded</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// Get relative time string
+function getRelativeTime(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) {
+    return `${days} day${days > 1 ? 's' : ''} ago`;
+  } else if (hours > 0) {
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  } else if (minutes > 0) {
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  } else {
+    return 'Just now';
+  }
+}
+
+// Setup export button handlers
+document.getElementById('exportAllBtn')?.addEventListener('click', () => {
+  const format = document.querySelector('input[name="exportFormat"]:checked').value;
+  exportData(format, false);
+});
+
+document.getElementById('exportFilteredBtn')?.addEventListener('click', () => {
+  const format = document.querySelector('input[name="exportFormat"]:checked').value;
+  exportData(format, true);
+});
+
+// ========== Course Management Functions ==========
+
+// State for courses
+const courseState = {
+  allCourses: [],
+  filteredCourses: []
+};
+
+// Course DOM elements
+const courseElements = {
+  coursesView: document.getElementById('coursesView'),
+  courseSearchInput: document.getElementById('courseSearchInput'),
+  addCourseBtn: document.getElementById('addCourseBtn'),
+  coursesLoadingState: document.getElementById('coursesLoadingState'),
+  coursesEmptyState: document.getElementById('coursesEmptyState'),
+  coursesTableContainer: document.getElementById('coursesTableContainer'),
+  coursesTableBody: document.getElementById('coursesTableBody'),
+  
+  // Course Modal
+  courseModalOverlay: document.getElementById('courseModalOverlay'),
+  courseModalTitle: document.getElementById('courseModalTitle'),
+  courseForm: document.getElementById('courseForm'),
+  courseId: document.getElementById('courseId'),
+  courseName: document.getElementById('courseName'),
+  courseDescription: document.getElementById('courseDescription'),
+  courseCapacity: document.getElementById('courseCapacity'),
+  courseModalMessage: document.getElementById('courseModalMessage'),
+  submitCourseBtn: document.getElementById('submitCourseBtn'),
+  closeCourseModalBtn: document.getElementById('closeCourseModalBtn'),
+  cancelCourseModalBtn: document.getElementById('cancelCourseModalBtn'),
+  
+  // Course Students Modal
+  courseStudentsModalOverlay: document.getElementById('courseStudentsModalOverlay'),
+  courseStudentsCourseName: document.getElementById('courseStudentsCourseName'),
+  courseStudentsLoadingState: document.getElementById('courseStudentsLoadingState'),
+  courseStudentsEmptyState: document.getElementById('courseStudentsEmptyState'),
+  courseStudentsList: document.getElementById('courseStudentsList'),
+  closeCourseStudentsModalBtn: document.getElementById('closeCourseStudentsModalBtn'),
+  closeCourseStudentsBtn: document.getElementById('closeCourseStudentsBtn')
+};
+
+// Load courses from API
+async function loadCourses() {
+  try {
+    courseElements.coursesLoadingState.classList.remove('hidden');
+    courseElements.coursesEmptyState.classList.add('hidden');
+    courseElements.coursesTableContainer.classList.add('hidden');
+    
+    const response = await fetch('/api/courses');
+    if (!response.ok) throw new Error('Failed to fetch courses');
+    
+    const courses = await response.json();
+    courseState.allCourses = courses;
+    courseState.filteredCourses = courses;
+    
+    renderCoursesView();
+  } catch (error) {
+    console.error('Error loading courses:', error);
+    showToast('Failed to load courses', 'error');
+  } finally {
+    courseElements.coursesLoadingState.classList.add('hidden');
+  }
+}
+
+// Render courses table
+function renderCoursesView() {
+  const courses = courseState.filteredCourses;
+  
+  if (courses.length === 0) {
+    courseElements.coursesEmptyState.classList.remove('hidden');
+    courseElements.coursesTableContainer.classList.add('hidden');
+    return;
+  }
+  
+  courseElements.coursesEmptyState.classList.add('hidden');
+  courseElements.coursesTableContainer.classList.remove('hidden');
+  
+  courseElements.coursesTableBody.innerHTML = courses.map(course => `
+    <tr class="border-b-2 border-border-color hover:bg-primary-bg transition-colors duration-200">
+      <td class="px-4 py-4 font-bold text-primary-text">${escapeHtml(course.name)}</td>
+      <td class="px-4 py-4 text-secondary-text">${escapeHtml(course.description || 'N/A')}</td>
+      <td class="px-4 py-4 text-secondary-text">${course.capacity || 'N/A'}</td>
+      <td class="px-4 py-4">
+        <span class="inline-block rounded-sm bg-accent px-3 py-1 text-xs font-bold text-primary-bg">
+          ${course.studentCount}
+        </span>
+      </td>
+      <td class="px-4 py-4 text-right">
+        <div class="flex justify-end gap-2">
+          <button 
+            onclick="viewCourseStudents('${escapeHtml(course.name)}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+          >
+            View Students
+          </button>
+          <button 
+            onclick="editCourse('${course._id}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+          >
+            Edit
+          </button>
+          <button 
+            onclick="deleteCourse('${course._id}')"
+            class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Show courses view
+function showCoursesView() {
+  hideAllViews();
+  courseElements.coursesView?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  loadCourses();
+}
+
+// Show notifications view
+function showNotificationsView() {
+  hideAllViews();
+  document.getElementById('notificationsView')?.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  loadNotifications();
+}
+
+// Search courses
+const searchCourses = debounce(() => {
+  const searchTerm = courseElements.courseSearchInput.value.toLowerCase().trim();
+  
+  if (searchTerm === '') {
+    courseState.filteredCourses = courseState.allCourses;
+  } else {
+    courseState.filteredCourses = courseState.allCourses.filter(course =>
+      course.name.toLowerCase().includes(searchTerm)
+    );
+  }
+  
+  renderCoursesView();
+}, 300);
+
+// Open course modal for adding
+function openAddCourseModal() {
+  courseElements.courseModalTitle.textContent = 'Add Course';
+  courseElements.courseForm.reset();
+  courseElements.courseId.value = '';
+  courseElements.courseModalMessage.classList.add('hidden');
+  courseElements.submitCourseBtn.textContent = 'Save Course';
+  courseElements.courseModalOverlay.classList.remove('hidden');
+}
+
+// Open course modal for editing
+async function editCourse(courseId) {
+  try {
+    const course = courseState.allCourses.find(c => c._id === courseId);
+    if (!course) throw new Error('Course not found');
+    
+    courseElements.courseModalTitle.textContent = 'Edit Course';
+    courseElements.courseId.value = course._id;
+    courseElements.courseName.value = course.name;
+    courseElements.courseDescription.value = course.description || '';
+    courseElements.courseCapacity.value = course.capacity || '';
+    courseElements.courseModalMessage.classList.add('hidden');
+    courseElements.submitCourseBtn.textContent = 'Update Course';
+    courseElements.courseModalOverlay.classList.remove('hidden');
+  } catch (error) {
+    console.error('Error editing course:', error);
+    showToast('Failed to load course data', 'error');
+  }
+}
+
+// Close course modal
+function closeCourseModal() {
+  courseElements.courseModalOverlay.classList.add('hidden');
+  courseElements.courseForm.reset();
+  courseElements.courseModalMessage.classList.add('hidden');
+}
+
+// Add/Update course
+async function saveCourse(event) {
+  event.preventDefault();
+  
+  const courseId = courseElements.courseId.value;
+  const courseData = {
+    name: courseElements.courseName.value.trim(),
+    description: courseElements.courseDescription.value.trim(),
+    capacity: courseElements.courseCapacity.value ? parseInt(courseElements.courseCapacity.value) : undefined
+  };
+  
+  try {
+    const url = courseId ? `/api/courses/${courseId}` : '/api/courses';
+    const method = courseId ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(courseData)
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to save course');
+    }
+    
+    showToast(courseId ? 'Course updated successfully' : 'Course added successfully', 'success');
+    closeCourseModal();
+    await loadCourses();
+    
+    // Refresh course filter options in student form
+    await populateCourseDropdown();
+    updateNotificationBadge();
+  } catch (error) {
+    console.error('Error saving course:', error);
+    courseElements.courseModalMessage.textContent = error.message;
+    courseElements.courseModalMessage.className = 'mb-4 rounded-sm px-4 py-3 text-sm font-bold bg-error border-2 border-error text-primary-bg';
+    courseElements.courseModalMessage.classList.remove('hidden');
+  }
+}
+
+// Delete course
+async function deleteCourse(courseId) {
+  const course = courseState.allCourses.find(c => c._id === courseId);
+  if (!course) return;
+  
+  if (!confirm(`Are you sure you want to delete the course "${course.name}"?`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/courses/${courseId}`, {
+      method: 'DELETE'
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to delete course');
+    }
+    
+    showToast('Course deleted successfully', 'success');
+    await loadCourses();
+    
+    // Refresh course filter options in student form
+    await populateCourseDropdown();
+    updateNotificationBadge();
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// View course students
+async function viewCourseStudents(courseName) {
+  try {
+    courseElements.courseStudentsCourseName.textContent = `Course: ${courseName}`;
+    courseElements.courseStudentsLoadingState.classList.remove('hidden');
+    courseElements.courseStudentsEmptyState.classList.add('hidden');
+    courseElements.courseStudentsList.classList.add('hidden');
+    courseElements.courseStudentsModalOverlay.classList.remove('hidden');
+    
+    const response = await fetch(`/api/courses/${encodeURIComponent(courseName)}/students`);
+    if (!response.ok) throw new Error('Failed to fetch students');
+    
+    const data = await response.json();
+    const students = data.students;
+    
+    courseElements.courseStudentsLoadingState.classList.add('hidden');
+    
+    if (students.length === 0) {
+      courseElements.courseStudentsEmptyState.classList.remove('hidden');
+    } else {
+      courseElements.courseStudentsList.classList.remove('hidden');
+      courseElements.courseStudentsList.innerHTML = students.map(student => `
+        <div class="rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3">
+          <p class="font-bold text-primary-text">${escapeHtml(student.name)}</p>
+          <p class="text-xs text-secondary-text">${escapeHtml(student.email)} • Age: ${student.age} • Phone: ${escapeHtml(student.phone)}</p>
+        </div>
+      `).join('');
+    }
+  } catch (error) {
+    console.error('Error loading course students:', error);
+    showToast('Failed to load students', 'error');
+    closeCourseStudentsModal();
+  }
+}
+
+// Close course students modal
+function closeCourseStudentsModal() {
+  courseElements.courseStudentsModalOverlay.classList.add('hidden');
+  courseElements.courseStudentsList.innerHTML = '';
+}
+
+// Populate course dropdown in student form
+async function populateCourseDropdown(selectedCourse = '') {
+  try {
+    const response = await fetch('/api/courses');
+    if (!response.ok) throw new Error('Failed to fetch courses');
+    
+    const courses = await response.json();
+    const courseSelect = document.getElementById('course');
+    if (courseSelect) {
+      const currentValue = selectedCourse !== undefined && selectedCourse !== '' ? selectedCourse : courseSelect.value;
+      courseSelect.innerHTML = '<option value="">Select a course</option>' +
+        courses.map(course => 
+          `<option value="${escapeHtml(course.name)}" ${course.name === currentValue ? 'selected' : ''}>
+            ${escapeHtml(course.name)}
+          </option>`
+        ).join('');
+      elements.courseInput = courseSelect;
+    }
+  } catch (error) {
+    console.error('Error populating course dropdown:', error);
+  }
+}
+
+// Setup course event listeners
+if (courseElements.courseSearchInput) {
+  courseElements.courseSearchInput.addEventListener('input', searchCourses);
+}
+
+if (courseElements.addCourseBtn) {
+  courseElements.addCourseBtn.addEventListener('click', openAddCourseModal);
+}
+
+if (courseElements.closeCourseModalBtn) {
+  courseElements.closeCourseModalBtn.addEventListener('click', closeCourseModal);
+}
+
+if (courseElements.cancelCourseModalBtn) {
+  courseElements.cancelCourseModalBtn.addEventListener('click', closeCourseModal);
+}
+
+if (courseElements.courseForm) {
+  courseElements.courseForm.addEventListener('submit', saveCourse);
+}
+
+if (courseElements.closeCourseStudentsModalBtn) {
+  courseElements.closeCourseStudentsModalBtn.addEventListener('click', closeCourseStudentsModal);
+}
+
+if (courseElements.closeCourseStudentsBtn) {
+  courseElements.closeCourseStudentsBtn.addEventListener('click', closeCourseStudentsModal);
+}
+
+// Populate course dropdown on page load
+populateCourseDropdown();
+
+// ========== Notification Functions ==========
+
+const notificationElements = {
+  notificationsView: document.getElementById('notificationsView'),
+  notificationBadge: document.getElementById('notificationBadge'),
+  notificationsLoadingState: document.getElementById('notificationsLoadingState'),
+  notificationsEmptyState: document.getElementById('notificationsEmptyState'),
+  notificationsList: document.getElementById('notificationsList'),
+  clearAllNotificationsBtn: document.getElementById('clearAllNotificationsBtn')
+};
+
+// Format relative time
+function formatRelativeTime(dateInput) {
+  const date = new Date(dateInput);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  
+  if (diffInSeconds < 60) return '< 1 minute ago';
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes === 1) return '1 minute ago';
+  if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours === 1) return '1 hour ago';
+  if (diffInHours < 24) return `${diffInHours} hours ago`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return 'yesterday';
+  return `${diffInDays} days ago`;
+}
+
+// Map notification type to icon/badge
+function getNotificationIcon(type) {
+  switch (type) {
+    case 'student_added':
+      return '👤 ➕';
+    case 'student_updated':
+      return '👤 ✏️';
+    case 'student_deleted':
+      return '👤 🗑️';
+    case 'course_added':
+      return '📚 ➕';
+    case 'course_updated':
+      return '📚 ✏️';
+    case 'course_deleted':
+      return '📚 🗑️';
+    default:
+      return '🔔';
+  }
+}
+
+// Load notifications from API
+async function loadNotifications() {
+  try {
+    if (notificationElements.notificationsLoadingState) {
+      notificationElements.notificationsLoadingState.classList.remove('hidden');
+    }
+    notificationElements.notificationsEmptyState?.classList.add('hidden');
+    notificationElements.notificationsList?.classList.add('hidden');
+
+    const response = await fetch('/api/notifications');
+    if (!response.ok) throw new Error('Failed to fetch notifications');
+
+    const notifications = await response.json();
+    renderNotificationsView(notifications);
+    updateNotificationBadge(notifications);
+  } catch (error) {
+    console.error('Error loading notifications:', error);
+    showToast('Failed to load notifications', 'error');
+  } finally {
+    if (notificationElements.notificationsLoadingState) {
+      notificationElements.notificationsLoadingState.classList.add('hidden');
+    }
+  }
+}
+
+// Render notifications view
+function renderNotificationsView(notifications = []) {
+  if (!notificationElements.notificationsList) return;
+
+  if (notifications.length === 0) {
+    notificationElements.notificationsEmptyState?.classList.remove('hidden');
+    notificationElements.notificationsList?.classList.add('hidden');
+    notificationElements.notificationsList.innerHTML = '';
+    return;
+  }
+
+  notificationElements.notificationsEmptyState?.classList.add('hidden');
+  notificationElements.notificationsList?.classList.remove('hidden');
+
+  notificationElements.notificationsList.innerHTML = notifications.map(notification => {
+    const isUnread = !notification.isRead;
+    const borderClass = isUnread ? 'border-accent bg-secondary-bg' : 'border-border-color bg-primary-bg opacity-80';
+    const relativeTime = formatRelativeTime(notification.createdAt);
+    const icon = getNotificationIcon(notification.type);
+
+    return `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-sm border-2 ${borderClass} transition-colors duration-200" data-id="${notification._id}">
+        <div class="flex items-start sm:items-center gap-3">
+          <span class="text-xl p-2 rounded-sm border border-border-color bg-primary-bg">${icon}</span>
+          <div>
+            <p class="font-bold text-primary-text text-sm sm:text-base">${escapeHtml(notification.message)}</p>
+            <p class="text-xs text-secondary-text mt-1">${relativeTime} ${isUnread ? '<span class="ml-2 inline-block px-2 py-0.5 text-[10px] uppercase font-black bg-accent text-primary-bg rounded-sm">New</span>' : ''}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          ${isUnread ? `
+            <button
+              onclick="markNotificationAsRead('${notification._id}')"
+              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+            >
+              Mark Read
+            </button>
+          ` : ''}
+          <button
+            onclick="deleteNotification('${notification._id}')"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200"
+            title="Delete notification"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Mark notification as read
+async function markNotificationAsRead(id) {
+  try {
+    const response = await fetch(`/api/notifications/${id}/read`, {
+      method: 'PUT'
+    });
+    if (!response.ok) throw new Error('Failed to mark notification as read');
+
+    showToast('Marked as read', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Delete notification
+async function deleteNotification(id) {
+  try {
+    const response = await fetch(`/api/notifications/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete notification');
+
+    showToast('Notification deleted', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Clear all notifications
+async function clearAllNotifications() {
+  if (!confirm('Are you sure you want to clear all notifications?')) {
+    return;
+  }
+  try {
+    const response = await fetch('/api/notifications', {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to clear notifications');
+
+    showToast('All notifications cleared', 'success');
+    await loadNotifications();
+  } catch (error) {
+    console.error('Error clearing notifications:', error);
+    showToast(error.message, 'error');
+  }
+}
+
+// Update notification badge
+async function updateNotificationBadge(cachedNotifications = null) {
+  try {
+    let notifications = cachedNotifications;
+    if (!notifications) {
+      const response = await fetch('/api/notifications');
+      if (!response.ok) return;
+      notifications = await response.json();
+    }
+
+    const unreadCount = notifications.filter(n => !n.isRead).length;
+    const badge = notificationElements.notificationBadge || document.getElementById('notificationBadge');
+
+    if (badge) {
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.textContent = '0';
+        badge.classList.add('hidden');
+      }
+    }
+  } catch (error) {
+    console.error('Error updating notification badge:', error);
+  }
+}
+
+// Expose handlers for inline HTML onclick
+window.markNotificationAsRead = markNotificationAsRead;
+window.deleteNotification = deleteNotification;
+
+// Setup notification event listeners
+if (notificationElements.clearAllNotificationsBtn) {
+  notificationElements.clearAllNotificationsBtn.addEventListener('click', clearAllNotifications);
+}
+
+// Poll notifications every 30 seconds
+setInterval(updateNotificationBadge, 30000);
+
+// Initial badge update
+updateNotificationBadge();
+

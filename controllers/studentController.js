@@ -1,5 +1,7 @@
 const Student = require('../models/Student');
+const Course = require('../models/Course');
 const asyncHandler = require('../middleware/asyncHandler');
+const notificationLogger = require('../middleware/notificationLogger');
 
 /**
  * @desc    Get all students with pagination, search, filtering, and sorting
@@ -109,7 +111,19 @@ const getAllStudents = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const createStudent = asyncHandler(async (req, res) => {
+  // Validate that the course exists in the Course collection
+  // This enforces referential integrity between students and courses
+  if (req.body.course) {
+    const courseExists = await Course.findOne({ name: req.body.course });
+    if (!courseExists) {
+      return res.status(400).json({
+        message: 'Course does not exist. Please select a valid course from the courses list.'
+      });
+    }
+  }
+  
   const student = await Student.create(req.body);
+  await notificationLogger.logStudentAdded(student);
   res.status(201).json(student);
 });
 
@@ -119,6 +133,17 @@ const createStudent = asyncHandler(async (req, res) => {
  * @access  Public
  */
 const updateStudent = asyncHandler(async (req, res) => {
+  // Validate that the course exists in the Course collection if course is being updated
+  // This enforces referential integrity between students and courses
+  if (req.body.course) {
+    const courseExists = await Course.findOne({ name: req.body.course });
+    if (!courseExists) {
+      return res.status(400).json({
+        message: 'Course does not exist. Please select a valid course from the courses list.'
+      });
+    }
+  }
+  
   const student = await Student.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
@@ -128,6 +153,7 @@ const updateStudent = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Student not found' });
   }
 
+  await notificationLogger.logStudentUpdated(student);
   res.json(student);
 });
 
@@ -143,6 +169,7 @@ const deleteStudent = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Student not found' });
   }
 
+  await notificationLogger.logStudentDeleted({ name: student.name });
   res.json({ message: 'Student deleted successfully' });
 });
 

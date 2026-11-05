@@ -5,6 +5,10 @@ const dotenv = require('dotenv');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const studentRoutes = require('./routes/studentRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const exportRoutes = require('./routes/exportRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Load environment variables
@@ -69,6 +73,10 @@ app.get('/api/health', (req, res) => {
 
 // API routes
 app.use('/api/students', studentRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Catch-all route for SPA
 app.get('*', (req, res) => {

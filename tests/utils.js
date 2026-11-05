@@ -13,6 +13,18 @@ function createTestStudent(overrides = {}) {
 }
 
 /**
+ * Factory function: creates a valid test course with optional overrides
+ */
+function createTestCourse(overrides = {}) {
+  return {
+    name: 'Computer Science',
+    description: 'Introduction to programming and algorithms',
+    capacity: 50,
+    ...overrides
+  };
+}
+
+/**
  * Returns a valid student object
  */
 function createValidStudent() {
@@ -42,6 +54,7 @@ function generateValidToken() {
 
 module.exports = {
   createTestStudent,
+  createTestCourse,
   createValidStudent,
   createInvalidStudent,
   generateValidToken
