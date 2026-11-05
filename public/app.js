@@ -1070,18 +1070,27 @@ function renderCoursesView() {
       <td class="px-4 py-4 text-right">
         <div class="flex justify-end gap-2">
           <button 
+            type="button"
+            data-action="view-students"
+            data-name="${escapeHtml(course.name)}"
             onclick="viewCourseStudents('${escapeHtml(course.name)}')"
             class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
           >
             View Students
           </button>
           <button 
+            type="button"
+            data-action="edit-course"
+            data-id="${course._id}"
             onclick="editCourse('${course._id}')"
             class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
           >
             Edit
           </button>
           <button 
+            type="button"
+            data-action="delete-course"
+            data-id="${course._id}"
             onclick="deleteCourse('${course._id}')"
             class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
           >
@@ -1476,15 +1485,21 @@ function renderNotificationsView() {
         <div class="flex items-center gap-2 self-end sm:self-center">
           ${isUnread ? `
             <button
+              type="button"
+              data-action="mark-read"
+              data-id="${notification._id}"
               onclick="markNotificationAsRead('${notification._id}')"
-              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200 cursor-pointer"
             >
               Mark Read
             </button>
           ` : ''}
           <button
+            type="button"
+            data-action="delete-notification"
+            data-id="${notification._id}"
             onclick="deleteNotification('${notification._id}')"
-            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200 cursor-pointer"
             title="Delete notification"
           >
             Delete
@@ -1627,6 +1642,58 @@ if (notificationElements.filterUnreadBtn) {
 
 if (notificationElements.filterAllBtn) {
   notificationElements.filterAllBtn.addEventListener('click', () => setNotificationFilter('all'));
+}
+
+// Event delegation for notification actions (Mark Read & Delete)
+if (notificationElements.notificationsList) {
+  notificationElements.notificationsList.addEventListener('click', async (event) => {
+    const markReadBtn = event.target.closest('[data-action="mark-read"]');
+    if (markReadBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = markReadBtn.dataset.id;
+      if (id) await markNotificationAsRead(id);
+      return;
+    }
+
+    const deleteBtn = event.target.closest('[data-action="delete-notification"]');
+    if (deleteBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const id = deleteBtn.dataset.id;
+      if (id) await deleteNotification(id);
+      return;
+    }
+  });
+}
+
+// Event delegation for course table actions (View Students, Edit, Delete)
+if (courseElements.coursesTableBody) {
+  courseElements.coursesTableBody.addEventListener('click', async (event) => {
+    const viewBtn = event.target.closest('[data-action="view-students"]');
+    if (viewBtn) {
+      event.preventDefault();
+      const name = viewBtn.dataset.name;
+      if (name) viewCourseStudents(name);
+      return;
+    }
+
+    const editBtn = event.target.closest('[data-action="edit-course"]');
+    if (editBtn) {
+      event.preventDefault();
+      const id = editBtn.dataset.id;
+      if (id) editCourse(id);
+      return;
+    }
+
+    const deleteBtn = event.target.closest('[data-action="delete-course"]');
+    if (deleteBtn) {
+      event.preventDefault();
+      const id = deleteBtn.dataset.id;
+      if (id) await deleteCourse(id);
+      return;
+    }
+  });
 }
 
 // Poll notifications every 30 seconds
