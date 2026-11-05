@@ -509,10 +509,24 @@
             <div class="mt-2 h-2 w-32 bg-accent"></div>
             <p class="mt-4 text-secondary-text text-sm">System audit events and real-time activity alerts.</p>
           </div>
-          <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex rounded-sm border-2 border-border-color bg-primary-bg p-0.5">
+              <button
+                id="filterUnreadNotificationsBtn"
+                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg transition-colors duration-200"
+              >
+                Unread
+              </button>
+              <button
+                id="filterAllNotificationsBtn"
+                class="rounded-sm border-2 border-transparent px-4 py-2 font-bold uppercase text-xs text-secondary-text hover:text-accent transition-colors duration-200"
+              >
+                All
+              </button>
+            </div>
             <button
               id="clearAllNotificationsBtn"
-              class="rounded-sm border-2 border-border-color bg-secondary-bg px-4 py-3 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color bg-secondary-bg px-4 py-2.5 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
             >
               Clear All Notifications
             </button>
