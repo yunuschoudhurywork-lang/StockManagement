@@ -54,6 +54,13 @@ const elements = {
   courseInput: document.getElementById('course'),
   phoneInput: document.getElementById('phone'),
   ageInput: document.getElementById('age'),
+  photoInput: document.getElementById('photo'),
+  photoFileInput: document.getElementById('photoFileInput'),
+  photoUrlInput: document.getElementById('photoUrlInput'),
+  photoPreview: document.getElementById('photoPreview'),
+  photoPreviewPlaceholder: document.getElementById('photoPreviewPlaceholder'),
+  uploadPhotoBtn: document.getElementById('uploadPhotoBtn'),
+  removePhotoBtn: document.getElementById('removePhotoBtn'),
   modalMessage: document.getElementById('modalMessage'),
   submitBtn: document.getElementById('submitBtn'),
   addStudentBtn: document.getElementById('addStudentBtn'),
@@ -153,6 +160,26 @@ function showLoading(isLoading) {
   }
 }
 
+// Generate circular avatar fallback with student initials
+function getAvatarFallback(name) {
+  const initials = (name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map(part => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  return `<div class="h-10 w-10 rounded-full border-2 border-accent bg-secondary-bg flex items-center justify-center font-black text-xs text-accent uppercase flex-shrink-0 select-none shadow-sm">${escapeHtml(initials)}</div>`;
+}
+
+// Render circular student avatar or fallback
+function renderStudentAvatar(photo, name) {
+  if (photo && photo.trim()) {
+    return `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" class="h-10 w-10 rounded-full border-2 border-accent object-cover flex-shrink-0 shadow-sm" onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');" /><div class="hidden flex-shrink-0">${getAvatarFallback(name)}</div>`;
+  }
+  return getAvatarFallback(name);
+}
+
 // Render students table
 function renderStudents(students) {
   elements.studentsTable.innerHTML = '';
@@ -162,7 +189,12 @@ function renderStudents(students) {
     row.className = 'border-b-2 border-border-color hover:bg-primary-bg transition-colors duration-200';
 
     row.innerHTML = `
-      <td class="px-4 py-4 font-medium text-primary-text">${escapeHtml(student.name)}</td>
+      <td class="px-4 py-4 font-medium text-primary-text">
+        <div class="flex items-center gap-3">
+          ${renderStudentAvatar(student.photo, student.name)}
+          <span class="font-bold text-primary-text tracking-tight">${escapeHtml(student.name)}</span>
+        </div>
+      </td>
       <td class="px-4 py-4 text-secondary-text">${escapeHtml(student.email)}</td>
       <td class="px-4 py-4 text-secondary-text">${escapeHtml(student.course)}</td>
       <td class="px-4 py-4 text-secondary-text">${student.age}</td>
@@ -287,6 +319,74 @@ function updateSortIndicators() {
   }
 }
 
+// Profile Photo helpers
+function setPhotoPreview(urlOrData) {
+  if (!elements.photoInput) return;
+  const val = (urlOrData || '').trim();
+  elements.photoInput.value = val;
+
+  if (val) {
+    elements.photoPreview.src = val;
+    elements.photoPreview.classList.remove('hidden');
+    elements.photoPreviewPlaceholder?.classList.add('hidden');
+    elements.removePhotoBtn?.classList.remove('hidden');
+    if (elements.photoUrlInput && !val.startsWith('data:')) {
+      elements.photoUrlInput.value = val;
+    }
+  } else {
+    elements.photoPreview.src = '';
+    elements.photoPreview.classList.add('hidden');
+    elements.photoPreviewPlaceholder?.classList.remove('hidden');
+    elements.removePhotoBtn?.classList.add('hidden');
+    if (elements.photoUrlInput) elements.photoUrlInput.value = '';
+    if (elements.photoFileInput) elements.photoFileInput.value = '';
+  }
+}
+
+// Compress uploaded file to a compact Base64 JPEG
+function handlePhotoFileUpload(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showModalMessage('Please select a valid image file (PNG, JPG, WebP)', 'error');
+    return;
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    showModalMessage('Image size must be under 8MB', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const maxDim = 320;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      setPhotoPreview(compressedDataUrl);
+      if (elements.photoUrlInput) elements.photoUrlInput.value = '';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // Modal functions
 function openModal(mode = 'add', student = null) {
   elements.modalOverlay.classList.remove('hidden');
@@ -301,6 +401,7 @@ function openModal(mode = 'add', student = null) {
     elements.emailInput.value = student.email;
     elements.phoneInput.value = student.phone;
     elements.ageInput.value = student.age;
+    setPhotoPreview(student.photo || '');
     populateCourseDropdown(student.course);
   } else {
     elements.modalTitle.textContent = 'Add Student';
@@ -309,6 +410,7 @@ function openModal(mode = 'add', student = null) {
     // Clear form
     elements.studentForm.reset();
     elements.studentId.value = '';
+    setPhotoPreview('');
     populateCourseDropdown('');
   }
   
@@ -323,6 +425,7 @@ function closeModal() {
   elements.modalOverlay.classList.add('hidden');
   elements.studentForm.reset();
   elements.studentId.value = '';
+  setPhotoPreview('');
   elements.modalMessage.classList.add('hidden');
 }
 
@@ -383,7 +486,8 @@ async function handleFormSubmit(event) {
     email: elements.emailInput.value.trim(),
     course: elements.courseInput.value.trim(),
     phone: elements.phoneInput.value.trim(),
-    age: Number(elements.ageInput.value)
+    age: Number(elements.ageInput.value),
+    photo: (elements.photoInput?.value || '').trim()
   };
 
   // Client-side validation
@@ -600,6 +704,36 @@ elements.addStudentBtn.addEventListener('click', () => openModal('add'));
 elements.closeModalBtn.addEventListener('click', closeModal);
 elements.cancelModalBtn.addEventListener('click', closeModal);
 elements.studentForm.addEventListener('submit', handleFormSubmit);
+
+// Photo input controls
+if (elements.uploadPhotoBtn && elements.photoFileInput) {
+  elements.uploadPhotoBtn.addEventListener('click', () => {
+    elements.photoFileInput.click();
+  });
+
+  elements.photoFileInput.addEventListener('change', () => {
+    if (elements.photoFileInput.files && elements.photoFileInput.files[0]) {
+      handlePhotoFileUpload(elements.photoFileInput.files[0]);
+    }
+  });
+}
+
+if (elements.photoUrlInput) {
+  elements.photoUrlInput.addEventListener('input', () => {
+    const val = elements.photoUrlInput.value.trim();
+    if (val) {
+      setPhotoPreview(val);
+    } else if (elements.photoInput && !elements.photoInput.value.startsWith('data:')) {
+      setPhotoPreview('');
+    }
+  });
+}
+
+if (elements.removePhotoBtn) {
+  elements.removePhotoBtn.addEventListener('click', () => {
+    setPhotoPreview('');
+  });
+}
 
 // Close modal on overlay click
 elements.modalOverlay.addEventListener('click', (event) => {
@@ -1268,9 +1402,12 @@ async function viewCourseStudents(courseName) {
     } else {
       courseElements.courseStudentsList.classList.remove('hidden');
       courseElements.courseStudentsList.innerHTML = students.map(student => `
-        <div class="rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3">
-          <p class="font-bold text-primary-text">${escapeHtml(student.name)}</p>
-          <p class="text-xs text-secondary-text">${escapeHtml(student.email)} • Age: ${student.age} • Phone: ${escapeHtml(student.phone)}</p>
+        <div class="rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 flex items-center gap-3">
+          ${renderStudentAvatar(student.photo, student.name)}
+          <div>
+            <p class="font-bold text-primary-text">${escapeHtml(student.name)}</p>
+            <p class="text-xs text-secondary-text">${escapeHtml(student.email)} • Age: ${student.age} • Phone: ${escapeHtml(student.phone)}</p>
+          </div>
         </div>
       `).join('');
     }

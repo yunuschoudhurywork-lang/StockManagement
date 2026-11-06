@@ -28,6 +28,11 @@ const studentSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Age is required'],
       min: [1, 'Age must be greater than 0']
+    },
+    photo: {
+      type: String,
+      default: '',
+      trim: true
     }
   },
   { timestamps: true }

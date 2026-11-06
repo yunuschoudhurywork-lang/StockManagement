@@ -61,8 +61,9 @@ app.use(cors(corsOptions));
 // HTTP request logging middleware
 app.use(morgan('dev'));
 
-// Body parser middleware
-app.use(express.json());
+// Body parser middleware with 10MB limit for profile photos
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
