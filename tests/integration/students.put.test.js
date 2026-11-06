@@ -126,4 +126,20 @@ describe('PUT /api/students/:id', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.photo).toBe('https://example.com/new-avatar.jpg');
   });
+
+  test('should update student status and notes', async () => {
+    const res = await request(app)
+      .put(`/api/students/${existingStudent._id}`)
+      .send({ status: 'On Leave', notes: 'Medical leave approved' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('On Leave');
+    expect(res.body.notes).toBe('Medical leave approved');
+  });
+
+  test('should fail with 400 for invalid status', async () => {
+    const res = await request(app)
+      .put(`/api/students/${existingStudent._id}`)
+      .send({ status: 'InvalidStatus' });
+    expect(res.statusCode).toBe(400);
+  });
 });

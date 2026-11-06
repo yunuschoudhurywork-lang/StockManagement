@@ -267,4 +267,49 @@ describe('GET /api/students', () => {
       expect(bob).toBeDefined();
     });
   });
+
+  describe('GET /api/students/:id (360° Profile)', () => {
+    test('should return student by ID with courseInfo', async () => {
+      const Course = require('../../models/Course');
+      await Course.findOneAndUpdate(
+        { name: 'Computer Science' },
+        { description: 'CS Degree', capacity: 40 },
+        { upsert: true, new: true }
+      );
+      const student = await Student.create(
+        createTestStudent({
+          name: 'Priya Sharma',
+          email: 'priya.sharma@example.com',
+          course: 'Computer Science',
+          status: 'Active',
+          notes: 'Top performer in class'
+        })
+      );
+
+      const res = await request(app).get(`/api/students/${student._id}`);
+      expect(res.statusCode).toBe(200);
+      expect(res.body).toHaveProperty('_id', student._id.toString());
+      expect(res.body.name).toBe('Priya Sharma');
+      expect(res.body.status).toBe('Active');
+      expect(res.body.notes).toBe('Top performer in class');
+      expect(res.body).toHaveProperty('courseInfo');
+      expect(res.body.courseInfo.name).toBe('Computer Science');
+      expect(res.body.courseInfo.description).toBe('CS Degree');
+      expect(res.body.courseInfo.enrolledCount).toBe(1);
+    });
+
+    test('should return 404 when student does not exist', async () => {
+      const mongoose = require('mongoose');
+      const fakeId = new mongoose.Types.ObjectId();
+      const res = await request(app).get(`/api/students/${fakeId}`);
+      expect(res.statusCode).toBe(404);
+      expect(res.body.message).toBe('Student not found');
+    });
+
+    test('should return 400 when student ID is invalid', async () => {
+      const res = await request(app).get('/api/students/invalid-id-format');
+      expect(res.statusCode).toBe(400);
+      expect(res.body.message).toBe('Invalid student ID format');
+    });
+  });
 });

@@ -54,6 +54,8 @@ const elements = {
   courseInput: document.getElementById('course'),
   phoneInput: document.getElementById('phone'),
   ageInput: document.getElementById('age'),
+  statusInput: document.getElementById('statusInput'),
+  notesInput: document.getElementById('notesInput'),
   photoInput: document.getElementById('photo'),
   photoFileInput: document.getElementById('photoFileInput'),
   photoUrlInput: document.getElementById('photoUrlInput'),
@@ -66,6 +68,36 @@ const elements = {
   addStudentBtn: document.getElementById('addStudentBtn'),
   closeModalBtn: document.getElementById('closeModalBtn'),
   cancelModalBtn: document.getElementById('cancelModalBtn'),
+
+  // 360° Student Profile Modal
+  studentProfileModalOverlay: document.getElementById('studentProfileModalOverlay'),
+  closeProfileModalBtn: document.getElementById('closeProfileModalBtn'),
+  closeProfileModalBottomBtn: document.getElementById('closeProfileModalBottomBtn'),
+  profileAvatarImg: document.getElementById('profileAvatarImg'),
+  profileAvatarFallback: document.getElementById('profileAvatarFallback'),
+  profileName: document.getElementById('profileName'),
+  profileStudentIdTag: document.getElementById('profileStudentIdTag'),
+  profileStatusBadge: document.getElementById('profileStatusBadge'),
+  profileCourseBadge: document.getElementById('profileCourseBadge'),
+  profileAgeBadge: document.getElementById('profileAgeBadge'),
+  profileEditBtn: document.getElementById('profileEditBtn'),
+  profilePrintBtn: document.getElementById('profilePrintBtn'),
+  profileDeleteBtn: document.getElementById('profileDeleteBtn'),
+  profileStatStatus: document.getElementById('profileStatStatus'),
+  profileStatCourse: document.getElementById('profileStatCourse'),
+  profileStatEnrolled: document.getElementById('profileStatEnrolled'),
+  profileStatEnrolledCount: document.getElementById('profileStatEnrolledCount'),
+  profileEmailLink: document.getElementById('profileEmailLink'),
+  copyProfileEmailBtn: document.getElementById('copyProfileEmailBtn'),
+  profilePhoneLink: document.getElementById('profilePhoneLink'),
+  profileAgeDetail: document.getElementById('profileAgeDetail'),
+  profileCourseDetail: document.getElementById('profileCourseDetail'),
+  profileCourseDesc: document.getElementById('profileCourseDesc'),
+  profileCourseCapacity: document.getElementById('profileCourseCapacity'),
+  profileStatusSelect: document.getElementById('profileStatusSelect'),
+  profileNotesInput: document.getElementById('profileNotesInput'),
+  saveProfileNotesBtn: document.getElementById('saveProfileNotesBtn'),
+  profileNotesSavedNotice: document.getElementById('profileNotesSavedNotice'),
   
   // Sidebar
   menuToggle: document.getElementById('menuToggle'),
@@ -188,11 +220,18 @@ function renderStudents(students) {
     const row = document.createElement('tr');
     row.className = 'border-b-2 border-border-color hover:bg-primary-bg transition-colors duration-200';
 
+    const statusBadge = student.status && student.status !== 'Active'
+      ? `<span class="ml-2 rounded-xs border border-border-color bg-secondary-bg px-1.5 py-0.5 text-[10px] font-bold uppercase text-secondary-text">${escapeHtml(student.status)}</span>`
+      : '';
+
     row.innerHTML = `
       <td class="px-4 py-4 font-medium text-primary-text">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 cursor-pointer group" data-action="view" data-id="${student._id}" title="Click to view 360° Student Profile">
           ${renderStudentAvatar(student.photo, student.name)}
-          <span class="font-bold text-primary-text tracking-tight">${escapeHtml(student.name)}</span>
+          <div class="flex items-center">
+            <span class="font-bold text-primary-text tracking-tight group-hover:text-accent transition-colors duration-150">${escapeHtml(student.name)}</span>
+            ${statusBadge}
+          </div>
         </div>
       </td>
       <td class="px-4 py-4 text-secondary-text">${escapeHtml(student.email)}</td>
@@ -200,6 +239,15 @@ function renderStudents(students) {
       <td class="px-4 py-4 text-secondary-text">${student.age}</td>
       <td class="px-4 py-4">
         <div class="flex justify-end gap-2">
+          <button
+            class="rounded-sm border-2 border-border-color px-3 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            type="button"
+            data-action="view"
+            data-id="${student._id}"
+            title="View 360° Profile"
+          >
+            View
+          </button>
           <button
             class="rounded-sm border-2 border-border-color px-3 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
             type="button"
@@ -401,6 +449,8 @@ function openModal(mode = 'add', student = null) {
     elements.emailInput.value = student.email;
     elements.phoneInput.value = student.phone;
     elements.ageInput.value = student.age;
+    if (elements.statusInput) elements.statusInput.value = student.status || 'Active';
+    if (elements.notesInput) elements.notesInput.value = student.notes || '';
     setPhotoPreview(student.photo || '');
     populateCourseDropdown(student.course);
   } else {
@@ -410,6 +460,8 @@ function openModal(mode = 'add', student = null) {
     // Clear form
     elements.studentForm.reset();
     elements.studentId.value = '';
+    if (elements.statusInput) elements.statusInput.value = 'Active';
+    if (elements.notesInput) elements.notesInput.value = '';
     setPhotoPreview('');
     populateCourseDropdown('');
   }
@@ -425,6 +477,8 @@ function closeModal() {
   elements.modalOverlay.classList.add('hidden');
   elements.studentForm.reset();
   elements.studentId.value = '';
+  if (elements.statusInput) elements.statusInput.value = 'Active';
+  if (elements.notesInput) elements.notesInput.value = '';
   setPhotoPreview('');
   elements.modalMessage.classList.add('hidden');
 }
@@ -487,7 +541,9 @@ async function handleFormSubmit(event) {
     course: elements.courseInput.value.trim(),
     phone: elements.phoneInput.value.trim(),
     age: Number(elements.ageInput.value),
-    photo: (elements.photoInput?.value || '').trim()
+    photo: (elements.photoInput?.value || '').trim(),
+    status: (elements.statusInput?.value || 'Active').trim(),
+    notes: (elements.notesInput?.value || '').trim()
   };
 
   // Client-side validation
@@ -682,20 +738,259 @@ document.querySelectorAll('th[data-sort]').forEach(th => {
   });
 });
 
-// Table row actions (edit/delete)
-elements.studentsTable.addEventListener('click', async (event) => {
-  const button = event.target.closest('button');
-  if (!button) return;
+// Current viewed student in 360° profile
+let currentProfileStudent = null;
 
-  const studentId = button.dataset.id;
-  const action = button.dataset.action;
+// Populate profile modal fields
+function populateProfileData(student) {
+  if (!student) return;
+  currentProfileStudent = student;
 
-  if (action === 'edit') {
-    editStudent(studentId);
+  // Name & ID
+  if (elements.profileName) elements.profileName.textContent = student.name;
+  if (elements.profileStudentIdTag) {
+    const shortId = (student._id || '').slice(-6).toUpperCase();
+    elements.profileStudentIdTag.textContent = `ID: #${shortId}`;
   }
 
-  if (action === 'delete') {
+  // Large Avatar & Fallback
+  const initials = (student.name || '?')
+    .split(' ')
+    .filter(Boolean)
+    .map(p => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+  if (elements.profileAvatarFallback) elements.profileAvatarFallback.textContent = initials;
+
+  if (student.photo && student.photo.trim()) {
+    if (elements.profileAvatarImg) {
+      elements.profileAvatarImg.src = student.photo;
+      elements.profileAvatarImg.classList.remove('hidden');
+      elements.profileAvatarImg.onerror = () => {
+        elements.profileAvatarImg.classList.add('hidden');
+        if (elements.profileAvatarFallback) elements.profileAvatarFallback.classList.remove('hidden');
+      };
+    }
+    if (elements.profileAvatarFallback) elements.profileAvatarFallback.classList.add('hidden');
+  } else {
+    if (elements.profileAvatarImg) {
+      elements.profileAvatarImg.src = '';
+      elements.profileAvatarImg.classList.add('hidden');
+    }
+    if (elements.profileAvatarFallback) elements.profileAvatarFallback.classList.remove('hidden');
+  }
+
+  // Status Badge
+  const status = student.status || 'Active';
+  if (elements.profileStatusBadge) {
+    elements.profileStatusBadge.textContent = status;
+    elements.profileStatusBadge.className = 'rounded-sm border-2 px-3 py-1 text-xs font-black uppercase ' + (
+      status === 'Active' ? 'border-success bg-success bg-opacity-20 text-success' :
+      status === 'On Leave' ? 'border-yellow-500 bg-yellow-500 bg-opacity-20 text-yellow-500' :
+      status === 'Graduated' ? 'border-accent bg-accent bg-opacity-20 text-accent' :
+      'border-error bg-error bg-opacity-20 text-error'
+    );
+  }
+
+  // Badges & Quick Stats
+  if (elements.profileCourseBadge) elements.profileCourseBadge.textContent = student.course;
+  if (elements.profileAgeBadge) elements.profileAgeBadge.textContent = `${student.age} Years Old`;
+  if (elements.profileStatStatus) elements.profileStatStatus.textContent = status;
+  if (elements.profileStatCourse) elements.profileStatCourse.textContent = student.course;
+
+  // Enrolled date formatting
+  const createdDate = student.createdAt ? new Date(student.createdAt) : new Date();
+  const dateFormatted = createdDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (elements.profileStatEnrolled) elements.profileStatEnrolled.textContent = dateFormatted;
+
+  // Contact Details
+  if (elements.profileEmailLink) {
+    elements.profileEmailLink.textContent = student.email;
+    elements.profileEmailLink.href = `mailto:${student.email}`;
+  }
+  if (elements.profilePhoneLink) {
+    elements.profilePhoneLink.textContent = student.phone;
+    elements.profilePhoneLink.href = `tel:${student.phone}`;
+  }
+  if (elements.profileAgeDetail) {
+    elements.profileAgeDetail.textContent = `${student.age} Years Old`;
+  }
+
+  // Course Details
+  if (elements.profileCourseDetail) elements.profileCourseDetail.textContent = student.course;
+  if (elements.profileCourseDesc) {
+    elements.profileCourseDesc.textContent = student.courseInfo?.description || 'Curriculum for ' + student.course;
+  }
+  const enrolledCount = student.courseInfo?.enrolledCount ?? '-';
+  const capacity = student.courseInfo?.capacity;
+  if (elements.profileCourseCapacity) {
+    elements.profileCourseCapacity.textContent = capacity ? `${enrolledCount} / ${capacity} Enrolled` : `${enrolledCount} Enrolled`;
+  }
+  if (elements.profileStatEnrolledCount) {
+    elements.profileStatEnrolledCount.textContent = enrolledCount;
+  }
+
+  // Interactive Remarks & Status
+  if (elements.profileStatusSelect) elements.profileStatusSelect.value = status;
+  if (elements.profileNotesInput) elements.profileNotesInput.value = student.notes || '';
+  if (elements.profileNotesSavedNotice) elements.profileNotesSavedNotice.classList.add('hidden');
+}
+
+// Open 360° Profile Modal
+async function openStudentProfileModal(studentId) {
+  if (!elements.studentProfileModalOverlay) return;
+
+  // Render immediately from cache if available
+  const cached = state.allStudents.find(s => s._id === studentId);
+  if (cached) {
+    populateProfileData(cached);
+  }
+
+  // Open overlay
+  elements.studentProfileModalOverlay.classList.remove('hidden');
+
+  // Fetch complete details including course info
+  try {
+    const res = await fetch(`${API_URL}/${studentId}`);
+    if (res.ok) {
+      const detailed = await res.json();
+      populateProfileData(detailed);
+    }
+  } catch (err) {
+    console.error('Error fetching student profile:', err);
+  }
+}
+
+// Close 360° Profile Modal
+function closeStudentProfileModal() {
+  if (elements.studentProfileModalOverlay) {
+    elements.studentProfileModalOverlay.classList.add('hidden');
+  }
+}
+
+// Save Remarks and Status from 360° Profile Modal
+async function saveProfileRemarksAndStatus() {
+  if (!currentProfileStudent || !currentProfileStudent._id) return;
+  const newStatus = elements.profileStatusSelect?.value || 'Active';
+  const newNotes = elements.profileNotesInput?.value.trim() || '';
+
+  try {
+    if (elements.saveProfileNotesBtn) {
+      elements.saveProfileNotesBtn.disabled = true;
+      elements.saveProfileNotesBtn.textContent = 'Saving...';
+    }
+
+    const response = await fetch(`${API_URL}/${currentProfileStudent._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus, notes: newNotes })
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to update remarks');
+    }
+
+    // Update in-memory data
+    currentProfileStudent = { ...currentProfileStudent, ...result };
+    populateProfileData(currentProfileStudent);
+
+    // Show temporary notice & toast
+    if (elements.profileNotesSavedNotice) {
+      elements.profileNotesSavedNotice.classList.remove('hidden');
+      setTimeout(() => elements.profileNotesSavedNotice?.classList.add('hidden'), 2500);
+    }
+    showToast('Remarks & status updated successfully', 'success');
+
+    // Reload students in table so status changes reflect immediately
+    loadStudents();
+    updateNotificationBadge();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    if (elements.saveProfileNotesBtn) {
+      elements.saveProfileNotesBtn.disabled = false;
+      elements.saveProfileNotesBtn.textContent = 'Save Remarks & Status';
+    }
+  }
+}
+
+// Print / Export Profile
+function printStudentProfile() {
+  if (!currentProfileStudent) return;
+  window.print();
+}
+
+// Copy Profile Email
+function copyProfileEmail() {
+  if (!currentProfileStudent?.email) return;
+  navigator.clipboard.writeText(currentProfileStudent.email)
+    .then(() => showToast('Email copied to clipboard', 'success'))
+    .catch(() => showToast('Failed to copy email', 'error'));
+}
+
+// Table row actions (view/edit/delete)
+elements.studentsTable.addEventListener('click', async (event) => {
+  const target = event.target.closest('[data-action]');
+  if (!target) return;
+
+  const studentId = target.dataset.id;
+  const action = target.dataset.action;
+
+  if (action === 'view') {
+    openStudentProfileModal(studentId);
+  } else if (action === 'edit') {
+    editStudent(studentId);
+  } else if (action === 'delete') {
     await deleteStudent(studentId);
+  }
+});
+
+// Profile Modal Controls
+if (elements.closeProfileModalBtn) {
+  elements.closeProfileModalBtn.addEventListener('click', closeStudentProfileModal);
+}
+if (elements.closeProfileModalBottomBtn) {
+  elements.closeProfileModalBottomBtn.addEventListener('click', closeStudentProfileModal);
+}
+if (elements.studentProfileModalOverlay) {
+  elements.studentProfileModalOverlay.addEventListener('click', (event) => {
+    if (event.target === elements.studentProfileModalOverlay) {
+      closeStudentProfileModal();
+    }
+  });
+}
+if (elements.saveProfileNotesBtn) {
+  elements.saveProfileNotesBtn.addEventListener('click', saveProfileRemarksAndStatus);
+}
+if (elements.profilePrintBtn) {
+  elements.profilePrintBtn.addEventListener('click', printStudentProfile);
+}
+if (elements.copyProfileEmailBtn) {
+  elements.copyProfileEmailBtn.addEventListener('click', copyProfileEmail);
+}
+if (elements.profileEditBtn) {
+  elements.profileEditBtn.addEventListener('click', () => {
+    const student = currentProfileStudent;
+    closeStudentProfileModal();
+    if (student) editStudent(student._id);
+  });
+}
+if (elements.profileDeleteBtn) {
+  elements.profileDeleteBtn.addEventListener('click', async () => {
+    const student = currentProfileStudent;
+    if (student) {
+      closeStudentProfileModal();
+      await deleteStudent(student._id);
+    }
+  });
+}
+
+// Keyboard shortcut (Escape) to close profile modal
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && elements.studentProfileModalOverlay && !elements.studentProfileModalOverlay.classList.contains('hidden')) {
+    closeStudentProfileModal();
   }
 });
 

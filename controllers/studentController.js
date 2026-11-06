@@ -173,8 +173,49 @@ const deleteStudent = asyncHandler(async (req, res) => {
   res.json({ message: 'Student deleted successfully' });
 });
 
+/**
+ * @desc    Get single student by ID with enriched course info
+ * @route   GET /api/students/:id
+ * @access  Public
+ */
+const getStudentById = asyncHandler(async (req, res) => {
+  const student = await Student.findById(req.params.id);
+
+  if (!student) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+
+  let courseInfo = null;
+  if (student.course) {
+    const course = await Course.findOne({ name: student.course });
+    const enrolledCount = await Student.countDocuments({ course: student.course });
+    if (course) {
+      courseInfo = {
+        _id: course._id,
+        name: course.name,
+        description: course.description || '',
+        capacity: course.capacity,
+        enrolledCount
+      };
+    } else {
+      courseInfo = {
+        name: student.course,
+        description: '',
+        capacity: null,
+        enrolledCount
+      };
+    }
+  }
+
+  res.json({
+    ...student.toObject(),
+    courseInfo
+  });
+});
+
 module.exports = {
   getAllStudents,
+  getStudentById,
   createStudent,
   updateStudent,
   deleteStudent
