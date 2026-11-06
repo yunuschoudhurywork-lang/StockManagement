@@ -118,4 +118,12 @@ describe('PUT /api/students/:id', () => {
       .send({ age: 200 });
     expect(res.statusCode).toBe(400);
   });
+
+  test('should update student profile photo', async () => {
+    const res = await request(app)
+      .put(`/api/students/${existingStudent._id}`)
+      .send({ photo: 'https://example.com/new-avatar.jpg' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.photo).toBe('https://example.com/new-avatar.jpg');
+  });
 });

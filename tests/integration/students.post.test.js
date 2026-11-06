@@ -97,4 +97,21 @@ describe('POST /api/students', () => {
     expect(res.statusCode).toBe(201);
     expect(res.body.email).toBe('lowercase@example.com');
   });
+
+  test('should create student with profile photo', async () => {
+    const res = await request(app).post('/api/students').send(createTestStudent({
+      email: 'photo@example.com',
+      photo: 'https://example.com/avatar.jpg'
+    }));
+    expect(res.statusCode).toBe(201);
+    expect(res.body.photo).toBe('https://example.com/avatar.jpg');
+  });
+
+  test('should default photo to empty string when omitted', async () => {
+    const res = await request(app).post('/api/students').send(createTestStudent({
+      email: 'nophoto@example.com'
+    }));
+    expect(res.statusCode).toBe(201);
+    expect(res.body.photo).toBe('');
+  });
 });

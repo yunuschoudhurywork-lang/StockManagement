@@ -238,7 +238,7 @@
                 <tr class="border-b-2 border-border-color bg-primary-bg">
                   <th class="px-4 py-4 font-black uppercase text-xs tracking-wider text-secondary-text cursor-pointer hover:text-accent transition-colors duration-200" data-sort="name">
                     <div class="flex items-center gap-2">
-                      Name
+                      Student
                       <span class="sort-indicator text-accent opacity-0">↓</span>
                     </div>
                   </th>
@@ -703,6 +703,56 @@
           <form id="studentForm">
             <input id="studentId" type="hidden" />
 
+            <!-- Profile Photo Upload & Preview -->
+            <div class="mb-5 rounded-sm border-2 border-border-color bg-primary-bg p-4">
+              <span class="mb-3 block text-xs uppercase tracking-wider text-secondary-text font-bold">Profile Picture (DP)</span>
+              <div class="flex items-center gap-4">
+                <!-- Circular DP Preview -->
+                <div class="relative flex-shrink-0">
+                  <div id="photoPreviewContainer" class="h-16 w-16 rounded-full border-3 border-accent bg-secondary-bg overflow-hidden flex items-center justify-center shadow-inner">
+                    <img id="photoPreview" src="" alt="Profile Preview" class="h-full w-full object-cover hidden" />
+                    <span id="photoPreviewPlaceholder" class="text-2xl text-accent font-black select-none">👤</span>
+                  </div>
+                </div>
+
+                <!-- Photo Controls -->
+                <div class="flex-1 space-y-2">
+                  <div class="flex gap-2">
+                    <button
+                      type="button"
+                      id="uploadPhotoBtn"
+                      class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200 cursor-pointer"
+                    >
+                      Choose Photo
+                    </button>
+                    <button
+                      type="button"
+                      id="removePhotoBtn"
+                      class="hidden rounded-sm border-2 border-error px-3 py-1.5 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200 cursor-pointer"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <!-- Hidden File Input -->
+                  <input
+                    type="file"
+                    id="photoFileInput"
+                    accept="image/*"
+                    class="hidden"
+                  />
+                  <!-- Direct URL Input -->
+                  <input
+                    type="url"
+                    id="photoUrlInput"
+                    placeholder="or paste image URL..."
+                    class="w-full rounded-sm border-2 border-border-color bg-secondary-bg px-3 py-1.5 text-xs text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200"
+                  />
+                  <!-- Hidden payload input storing actual data or URL -->
+                  <input type="hidden" id="photo" value="" />
+                </div>
+              </div>
+            </div>
+
             <!-- Name -->
             <label class="mb-4 block">
               <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Name</span>
@@ -801,6 +851,6 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm shadow-lg min-w-[300px]"></div>
 
-    <script src="./app.js?v=3"></script>
+    <script src="./app.js?v=4"></script>
   </body>
 </html>

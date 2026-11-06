@@ -28,7 +28,11 @@ const validateCreateStudent = [
   body('course')
     .trim()
     .notEmpty().withMessage('Course is required')
-    .isLength({ min: 2, max: 100 }).withMessage('Course must be between 2 and 100 characters')
+    .isLength({ min: 2, max: 100 }).withMessage('Course must be between 2 and 100 characters'),
+
+  body('photo')
+    .optional()
+    .trim()
 ];
 
 /**
@@ -59,7 +63,11 @@ const validateUpdateStudent = [
   body('course')
     .optional()
     .trim()
-    .isLength({ min: 2, max: 100 }).withMessage('Course must be between 2 and 100 characters')
+    .isLength({ min: 2, max: 100 }).withMessage('Course must be between 2 and 100 characters'),
+
+  body('photo')
+    .optional()
+    .trim()
 ];
 
 /**
