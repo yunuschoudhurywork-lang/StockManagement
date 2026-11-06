@@ -810,7 +810,7 @@
             </label>
 
             <!-- Age -->
-            <label class="mb-6 block">
+            <label class="mb-4 block">
               <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Age</span>
               <input
                 id="age"
@@ -821,6 +821,31 @@
                 placeholder="21"
                 required
               />
+            </label>
+
+            <!-- Status (Optional) -->
+            <label class="mb-4 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Student Status</span>
+              <select
+                id="statusInput"
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text outline-none focus:border-accent transition-colors duration-200"
+              >
+                <option value="Active">Active</option>
+                <option value="On Leave">On Leave</option>
+                <option value="Graduated">Graduated</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </label>
+
+            <!-- Notes / Remarks (Optional) -->
+            <label class="mb-6 block">
+              <span class="mb-2 block text-xs uppercase tracking-wider text-secondary-text font-bold">Admin Remarks / Notes</span>
+              <textarea
+                id="notesInput"
+                rows="2"
+                placeholder="Optional notes or remarks about this student..."
+                class="w-full rounded-sm border-2 border-border-color bg-primary-bg px-4 py-3 text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200 resize-none"
+              ></textarea>
             </label>
 
             <!-- Modal Message -->
@@ -848,9 +873,219 @@
       </div>
     </div>
 
+    <!-- 360° Student Profile Modal Overlay -->
+    <div id="studentProfileModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6 md:p-8 shadow-2xl">
+          <!-- Modal Top Bar -->
+          <div class="mb-6 flex items-center justify-between border-b-2 border-border-color pb-4">
+            <div class="flex items-center gap-2">
+              <span class="rounded-sm bg-accent px-2.5 py-1 text-xs font-black uppercase tracking-wider text-primary-bg">360° View</span>
+              <h2 class="text-xl font-black uppercase tracking-tight text-primary-text">Student Profile</h2>
+            </div>
+            <button 
+              id="closeProfileModalBtn" 
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+              title="Close Profile (Esc)"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Hero Profile Card -->
+          <div class="mb-6 rounded-sm border-2 border-border-color bg-primary-bg p-6">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <!-- Large DP / Avatar -->
+              <div class="relative flex-shrink-0">
+                <div id="profileAvatarWrapper" class="h-24 w-24 rounded-full border-3 border-accent bg-secondary-bg overflow-hidden flex items-center justify-center shadow-md">
+                  <img id="profileAvatarImg" src="" alt="Student DP" class="h-full w-full object-cover hidden" />
+                  <div id="profileAvatarFallback" class="h-full w-full flex items-center justify-center font-black text-2xl text-accent uppercase select-none">??</div>
+                </div>
+              </div>
+
+              <!-- Student Header Info -->
+              <div class="flex-1 text-center sm:text-left">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div>
+                    <h3 id="profileName" class="text-2xl font-black uppercase tracking-tight text-primary-text">Student Name</h3>
+                    <p id="profileStudentIdTag" class="text-xs uppercase tracking-wider text-secondary-text font-bold mt-0.5">ID: #000000</p>
+                  </div>
+                  <div class="flex items-center justify-center sm:justify-end gap-2">
+                    <span id="profileStatusBadge" class="rounded-sm border-2 border-success bg-success bg-opacity-20 px-3 py-1 text-xs font-black uppercase text-success">
+                      Active
+                    </span>
+                  </div>
+                </div>
+
+                <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <span id="profileCourseBadge" class="rounded-sm border-2 border-accent px-3 py-1 text-xs font-bold uppercase text-accent bg-accent bg-opacity-10">
+                    Course Name
+                  </span>
+                  <span id="profileAgeBadge" class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold text-secondary-text">
+                    20 Years Old
+                  </span>
+                </div>
+
+                <!-- Action Buttons Toolbar -->
+                <div class="mt-5 flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-4 border-t border-border-color">
+                  <button
+                    id="profileEditBtn"
+                    type="button"
+                    class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                  >
+                    ✏️ Edit Profile
+                  </button>
+                  <button
+                    id="profilePrintBtn"
+                    type="button"
+                    class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+                  >
+                    🖨️ Print Profile
+                  </button>
+                  <button
+                    id="profileDeleteBtn"
+                    type="button"
+                    class="rounded-sm border-2 border-error px-4 py-2 font-bold uppercase text-xs text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats Grid -->
+          <div class="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+              <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Status</p>
+              <p id="profileStatStatus" class="mt-1 text-sm font-black text-accent uppercase">Active</p>
+            </div>
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+              <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Course</p>
+              <p id="profileStatCourse" class="mt-1 text-sm font-black text-accent truncate">Web Dev</p>
+            </div>
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+              <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Enrolled</p>
+              <p id="profileStatEnrolled" class="mt-1 text-sm font-black text-primary-text">Nov 2026</p>
+            </div>
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+              <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Classmates</p>
+              <p id="profileStatEnrolledCount" class="mt-1 text-sm font-black text-primary-text">0</p>
+            </div>
+          </div>
+
+          <!-- 2-Column Info Grid -->
+          <div class="mb-6 grid md:grid-cols-2 gap-4">
+            <!-- Contact Card -->
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4">
+              <h4 class="text-xs uppercase tracking-wider text-secondary-text font-black border-b border-border-color pb-2 mb-3">
+                Contact Details
+              </h4>
+              <div class="space-y-3">
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Email Address</span>
+                  <div class="mt-0.5 flex items-center justify-between gap-2">
+                    <a id="profileEmailLink" href="#" class="text-sm font-bold text-accent hover:underline break-all">student@example.com</a>
+                    <button id="copyProfileEmailBtn" type="button" class="text-xs text-secondary-text hover:text-accent font-bold" title="Copy Email">Copy</button>
+                  </div>
+                </div>
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Phone Number</span>
+                  <a id="profilePhoneLink" href="#" class="mt-0.5 block text-sm font-bold text-primary-text hover:text-accent">9876543210</a>
+                </div>
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Age</span>
+                  <p id="profileAgeDetail" class="mt-0.5 text-sm font-bold text-primary-text">21</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Course Card -->
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4">
+              <h4 class="text-xs uppercase tracking-wider text-secondary-text font-black border-b border-border-color pb-2 mb-3">
+                Course Information
+              </h4>
+              <div class="space-y-3">
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Enrolled Course</span>
+                  <p id="profileCourseDetail" class="mt-0.5 text-sm font-bold text-primary-text">Course Name</p>
+                </div>
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Course Description</span>
+                  <p id="profileCourseDesc" class="mt-0.5 text-xs text-secondary-text italic">No description provided</p>
+                </div>
+                <div>
+                  <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Class Capacity</span>
+                  <p id="profileCourseCapacity" class="mt-0.5 text-sm font-bold text-primary-text">0 / 0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Admin Remarks & Status Section -->
+          <div class="rounded-sm border-2 border-accent bg-primary-bg p-5">
+            <div class="mb-3 flex items-center justify-between">
+              <h4 class="text-xs uppercase tracking-wider text-accent font-black">
+                📝 Admin Remarks &amp; Student Status
+              </h4>
+              <span id="profileNotesSavedNotice" class="hidden text-xs font-bold text-success">Saved!</span>
+            </div>
+
+            <div class="grid gap-3 sm:grid-cols-3 mb-3">
+              <div class="sm:col-span-1">
+                <label class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold mb-1">Update Status</label>
+                <select
+                  id="profileStatusSelect"
+                  class="w-full rounded-sm border-2 border-border-color bg-secondary-bg px-3 py-2 text-xs font-bold text-primary-text outline-none focus:border-accent transition-colors duration-200"
+                >
+                  <option value="Active">Active</option>
+                  <option value="On Leave">On Leave</option>
+                  <option value="Graduated">Graduated</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold mb-1">Remarks / Internal Notes</label>
+                <textarea
+                  id="profileNotesInput"
+                  rows="2"
+                  placeholder="Add notes about attendance, fees, performance..."
+                  class="w-full rounded-sm border-2 border-border-color bg-secondary-bg px-3 py-2 text-xs text-primary-text placeholder-secondary-text outline-none focus:border-accent transition-colors duration-200 resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="flex justify-end">
+              <button
+                id="saveProfileNotesBtn"
+                type="button"
+                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              >
+                Save Remarks &amp; Status
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Close Button -->
+          <div class="mt-6 flex justify-end">
+            <button
+              id="closeProfileModalBottomBtn"
+              type="button"
+              class="w-full sm:w-auto rounded-sm border-2 border-border-color px-6 py-2.5 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm shadow-lg min-w-[300px]"></div>
 
-    <script src="./app.js?v=4"></script>
+    <script src="./app.js?v=5"></script>
   </body>
 </html>

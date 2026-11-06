@@ -32,6 +32,14 @@ const validateCreateStudent = [
 
   body('photo')
     .optional()
+    .trim(),
+
+  body('status')
+    .optional()
+    .isIn(['Active', 'Graduated', 'Suspended', 'On Leave']).withMessage('Status must be Active, Graduated, Suspended, or On Leave'),
+
+  body('notes')
+    .optional()
     .trim()
 ];
 
@@ -66,6 +74,14 @@ const validateUpdateStudent = [
     .isLength({ min: 2, max: 100 }).withMessage('Course must be between 2 and 100 characters'),
 
   body('photo')
+    .optional()
+    .trim(),
+
+  body('status')
+    .optional()
+    .isIn(['Active', 'Graduated', 'Suspended', 'On Leave']).withMessage('Status must be Active, Graduated, Suspended, or On Leave'),
+
+  body('notes')
     .optional()
     .trim()
 ];
