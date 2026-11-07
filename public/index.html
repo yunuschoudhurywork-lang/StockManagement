@@ -23,6 +23,108 @@
         }
       }
     </script>
+    <style>
+      /* Neo-Brutalist Tactile Offset Shadows & Physics */
+      .brutal-shadow-sm {
+        box-shadow: 2px 2px 0px 0px #FFD83D;
+      }
+      .brutal-shadow-border {
+        box-shadow: 4px 4px 0px 0px #E8E4DA;
+      }
+      .brutal-shadow-accent {
+        box-shadow: 4px 4px 0px 0px #FFD83D;
+      }
+      .brutal-shadow-modal {
+        box-shadow: 8px 8px 0px 0px #FFD83D !important;
+      }
+      .brutal-shadow-toast {
+        box-shadow: 5px 5px 0px 0px #FFD83D !important;
+      }
+
+      /* Tactile Button Physics (Neutral) */
+      .brutal-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 3px 3px 0px 0px #E8E4DA;
+        transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .brutal-btn:hover:not(:disabled) {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px 0px #FFD83D;
+      }
+      .brutal-btn:active:not(:disabled) {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px 0px #FFD83D;
+      }
+      .brutal-btn:disabled {
+        cursor: not-allowed;
+        box-shadow: none !important;
+        transform: none !important;
+        opacity: 0.35;
+      }
+
+      /* Tactile Button Physics (Accent / Yellow Primary) */
+      .brutal-btn-accent {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 3px 3px 0px 0px #E8E4DA;
+        transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .brutal-btn-accent:hover:not(:disabled) {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px 0px #FFD83D;
+      }
+      .brutal-btn-accent:active:not(:disabled) {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px 0px #FFD83D;
+      }
+      .brutal-btn-accent:disabled {
+        cursor: not-allowed;
+        box-shadow: none !important;
+        transform: none !important;
+        opacity: 0.35;
+      }
+
+      /* Tactile Button Physics (Danger / Error Red) */
+      .brutal-btn-error {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 3px 3px 0px 0px #FF6B5E;
+        transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease, color 0.15s ease;
+      }
+      .brutal-btn-error:hover:not(:disabled) {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0px 0px #FF6B5E;
+      }
+      .brutal-btn-error:active:not(:disabled) {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px 0px #FF6B5E;
+      }
+
+      /* Tactile Interactive Cards (Hover lift) */
+      .brutal-card-hover {
+        transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 4px 4px 0px 0px #FFD83D;
+      }
+      .brutal-card-hover:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px 0px #FFD83D;
+      }
+
+      /* Tactile Input Focus offset */
+      input:focus, select:focus, textarea:focus {
+        box-shadow: 3px 3px 0px 0px #FFD83D !important;
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-primary-bg text-primary-text font-sans">
     <!-- Sidebar -->
@@ -115,26 +217,26 @@
         <!-- Statistics Cards -->
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <!-- Total Students Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Students</p>
             <p id="totalStudents" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
 
           <!-- Total Courses Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Courses</p>
             <p id="totalCourses" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
 
           <!-- Average Age Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Average Age</p>
             <p id="averageAge" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
         </div>
 
         <!-- Search & Filter Controls -->
-        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <!-- Search Input -->
             <div class="lg:col-span-2">
@@ -200,16 +302,16 @@
             </div>
 
             <!-- Clear & Add Buttons -->
-            <div class="flex items-end gap-2 md:col-span-1 lg:col-span-4">
+            <div class="flex items-end gap-3 md:col-span-1 lg:col-span-4">
               <button 
                 id="clearFiltersBtn" 
-                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
               >
                 Clear Filters
               </button>
               <button 
                 id="addStudentBtn" 
-                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
               >
                 + Add Student
               </button>
@@ -218,7 +320,7 @@
         </div>
 
         <!-- Students Table -->
-        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden">
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden brutal-shadow-border">
           <!-- Loading State -->
           <div id="loadingState" class="hidden p-12 text-center">
             <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
@@ -276,20 +378,20 @@
               </p>
 
               <!-- Pagination Buttons -->
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-3">
                 <button 
                   id="prevPageBtn" 
-                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-color disabled:hover:bg-transparent disabled:hover:text-primary-text"
+                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg disabled:opacity-30 disabled:cursor-not-allowed"
                   disabled
                 >
                   ← Previous
                 </button>
-                <span id="pageIndicator" class="px-4 py-2 text-sm font-bold text-secondary-text">
+                <span id="pageIndicator" class="px-3 py-2 text-sm font-bold text-secondary-text">
                   Page <span id="currentPageNum">1</span> of <span id="totalPagesNum">1</span>
                 </span>
                 <button 
                   id="nextPageBtn" 
-                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border-color disabled:hover:bg-transparent disabled:hover:text-primary-text"
+                  class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg disabled:opacity-30 disabled:cursor-not-allowed"
                   disabled
                 >
                   Next →
@@ -314,26 +416,26 @@
         <!-- Statistics Cards -->
         <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <!-- Total Students Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Students</p>
             <p id="reportTotalStudents" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
 
           <!-- Total Courses Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Total Courses</p>
             <p id="reportTotalCourses" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
 
           <!-- Average Age Card -->
-          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1">
+          <div class="rounded-sm border-3 border-accent bg-primary-bg p-6 sm:col-span-2 lg:col-span-1 brutal-card-hover">
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Average Age</p>
             <p id="reportAverageAge" class="mt-2 text-4xl font-black text-accent">0</p>
           </div>
         </div>
 
         <!-- Course Distribution Chart -->
-        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Course Distribution</h2>
           <div id="courseDistributionChart" class="space-y-4">
             <!-- Chart bars will be rendered here -->
@@ -341,7 +443,7 @@
         </div>
 
         <!-- Age Distribution Chart -->
-        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="mb-8 rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <h2 class="mb-6 text-2xl font-black uppercase tracking-tight text-accent">Age Distribution</h2>
           <div id="ageDistributionChart" class="space-y-4">
             <!-- Chart bars will be rendered here -->
@@ -401,18 +503,18 @@
         </div>
 
         <!-- Export Actions -->
-        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <h2 class="mb-4 text-2xl font-black uppercase tracking-tight text-accent">Export Options</h2>
           <div class="flex gap-4">
             <button 
               id="exportAllBtn"
-              class="flex-1 rounded-sm border-2 border-accent bg-accent px-6 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+              class="flex-1 rounded-sm border-2 border-accent bg-accent px-6 py-3 font-bold uppercase text-sm text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
             >
               Export All Students
             </button>
             <button 
               id="exportFilteredBtn"
-              class="flex-1 rounded-sm border-2 border-border-color px-6 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              class="flex-1 rounded-sm border-2 border-border-color px-6 py-3 font-bold uppercase text-sm text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             >
               Export Filtered Results
             </button>
@@ -421,7 +523,7 @@
         </div>
 
         <!-- Export History -->
-        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <h2 class="mb-4 text-2xl font-black uppercase tracking-tight text-accent">Recent Exports</h2>
           <div id="exportHistoryList" class="space-y-2">
             <p class="text-secondary-text text-sm">No export history yet.</p>
@@ -441,7 +543,7 @@
         </div>
 
         <!-- Search & Controls -->
-        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="mb-6 rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <div class="grid gap-4 md:grid-cols-2">
             <!-- Search Input -->
             <div>
@@ -458,7 +560,7 @@
             <div class="flex items-end">
               <button 
                 id="addCourseBtn" 
-                class="w-full rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                class="w-full rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
               >
                 + Add Course
               </button>
@@ -467,7 +569,7 @@
         </div>
 
         <!-- Courses Table -->
-        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden">
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg overflow-hidden brutal-shadow-border">
           <!-- Loading State -->
           <div id="coursesLoadingState" class="hidden p-12 text-center">
             <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
@@ -510,23 +612,23 @@
             <p class="mt-4 text-secondary-text text-sm">System audit events and real-time activity alerts.</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <div class="flex rounded-sm border-2 border-border-color bg-primary-bg p-0.5">
+            <div class="flex rounded-sm border-2 border-border-color bg-primary-bg p-0.5 gap-1">
               <button
                 id="filterUnreadNotificationsBtn"
-                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg transition-colors duration-200"
+                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg brutal-btn-accent"
               >
                 Unread
               </button>
               <button
                 id="filterAllNotificationsBtn"
-                class="rounded-sm border-2 border-transparent px-4 py-2 font-bold uppercase text-xs text-secondary-text hover:text-accent transition-colors duration-200"
+                class="rounded-sm border-2 border-transparent px-4 py-2 font-bold uppercase text-xs text-secondary-text hover:text-accent brutal-btn"
               >
                 All
               </button>
             </div>
             <button
               id="clearAllNotificationsBtn"
-              class="rounded-sm border-2 border-border-color bg-secondary-bg px-4 py-2.5 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color bg-secondary-bg px-4 py-2.5 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             >
               Clear All Notifications
             </button>
@@ -534,7 +636,7 @@
         </div>
 
         <!-- Notifications Container -->
-        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6">
+        <div class="rounded-sm border-2 border-border-color bg-secondary-bg p-6 brutal-shadow-border">
           <!-- Loading State -->
           <div id="notificationsLoadingState" class="hidden p-12 text-center">
             <div class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent"></div>
@@ -556,13 +658,13 @@
     <!-- Course Modal Overlay -->
     <div id="courseModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
       <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6">
+        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6 brutal-shadow-modal">
           <!-- Modal Header -->
           <div class="mb-6 flex items-center justify-between">
             <h2 id="courseModalTitle" class="text-2xl font-black uppercase tracking-tight text-accent">Add Course</h2>
             <button 
               id="closeCourseModalBtn" 
-              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text brutal-btn hover:border-accent hover:text-accent"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -620,14 +722,14 @@
               <button
                 id="cancelCourseModalBtn"
                 type="button"
-                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
               >
                 Cancel
               </button>
               <button
                 id="submitCourseBtn"
                 type="submit"
-                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
               >
                 Save Course
               </button>
@@ -640,7 +742,7 @@
     <!-- View Course Students Modal -->
     <div id="courseStudentsModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
       <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6">
+        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6 brutal-shadow-modal">
           <!-- Modal Header -->
           <div class="mb-6 flex items-center justify-between">
             <div>
@@ -649,7 +751,7 @@
             </div>
             <button 
               id="closeCourseStudentsModalBtn" 
-              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text brutal-btn hover:border-accent hover:text-accent"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -673,7 +775,7 @@
             <button
               id="closeCourseStudentsBtn"
               type="button"
-              class="w-full rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              class="w-full rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             >
               Close
             </button>
@@ -685,13 +787,13 @@
     <!-- Modal Overlay -->
     <div id="modalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
       <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6">
+        <div class="w-full max-w-md rounded-sm border-3 border-accent bg-secondary-bg p-6 brutal-shadow-modal">
           <!-- Modal Header -->
           <div class="mb-6 flex items-center justify-between">
             <h2 id="modalTitle" class="text-2xl font-black uppercase tracking-tight text-accent">Add Student</h2>
             <button 
               id="closeModalBtn" 
-              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text brutal-btn hover:border-accent hover:text-accent"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -721,14 +823,14 @@
                     <button
                       type="button"
                       id="uploadPhotoBtn"
-                      class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200 cursor-pointer"
+                      class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent cursor-pointer"
                     >
                       Choose Photo
                     </button>
                     <button
                       type="button"
                       id="removePhotoBtn"
-                      class="hidden rounded-sm border-2 border-error px-3 py-1.5 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200 cursor-pointer"
+                      class="hidden rounded-sm border-2 border-error px-3 py-1.5 text-xs font-bold uppercase text-error brutal-btn-error hover:bg-error hover:text-primary-bg cursor-pointer"
                     >
                       Remove
                     </button>
@@ -856,14 +958,14 @@
               <button
                 id="cancelModalBtn"
                 type="button"
-                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-border-color px-4 py-3 font-bold uppercase text-sm text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
               >
                 Cancel
               </button>
               <button
                 id="submitBtn"
                 type="submit"
-                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                class="flex-1 rounded-sm border-2 border-accent bg-accent px-4 py-3 font-bold uppercase text-sm text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
               >
                 Save Student
               </button>
@@ -876,16 +978,16 @@
     <!-- 360° Student Profile Modal Overlay -->
     <div id="studentProfileModalOverlay" class="fixed inset-0 z-50 hidden bg-primary-bg bg-opacity-95 overflow-y-auto">
       <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6 md:p-8 shadow-2xl">
+        <div class="w-full max-w-2xl rounded-sm border-3 border-accent bg-secondary-bg p-6 md:p-8 brutal-shadow-modal">
           <!-- Modal Top Bar -->
           <div class="mb-6 flex items-center justify-between border-b-2 border-border-color pb-4">
             <div class="flex items-center gap-2">
-              <span class="rounded-sm bg-accent px-2.5 py-1 text-xs font-black uppercase tracking-wider text-primary-bg">360° View</span>
+              <span class="rounded-sm bg-accent px-2.5 py-1 text-xs font-black uppercase tracking-wider text-primary-bg brutal-shadow-sm">360° View</span>
               <h2 class="text-xl font-black uppercase tracking-tight text-primary-text">Student Profile</h2>
             </div>
             <button 
               id="closeProfileModalBtn" 
-              class="rounded-sm border-2 border-border-color p-2 text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+              class="rounded-sm border-2 border-border-color p-2 text-primary-text brutal-btn hover:border-accent hover:text-accent"
               title="Close Profile (Esc)"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -895,7 +997,7 @@
           </div>
 
           <!-- Hero Profile Card -->
-          <div class="mb-6 rounded-sm border-2 border-border-color bg-primary-bg p-6">
+          <div class="mb-6 rounded-sm border-2 border-border-color bg-primary-bg p-6 brutal-shadow-border">
             <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               <!-- Large DP / Avatar -->
               <div class="relative flex-shrink-0">
@@ -933,21 +1035,21 @@
                   <button
                     id="profileEditBtn"
                     type="button"
-                    class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                    class="rounded-sm border-2 border-accent bg-accent px-4 py-2 font-bold uppercase text-xs text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
                   >
                     ✏️ Edit Profile
                   </button>
                   <button
                     id="profilePrintBtn"
                     type="button"
-                    class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+                    class="rounded-sm border-2 border-border-color px-4 py-2 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:text-accent"
                   >
                     🖨️ Print Profile
                   </button>
                   <button
                     id="profileDeleteBtn"
                     type="button"
-                    class="rounded-sm border-2 border-error px-4 py-2 font-bold uppercase text-xs text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+                    class="rounded-sm border-2 border-error px-4 py-2 font-bold uppercase text-xs text-error brutal-btn-error hover:bg-error hover:text-primary-bg"
                   >
                     🗑️ Delete
                   </button>
@@ -958,19 +1060,19 @@
 
           <!-- Quick Stats Grid -->
           <div class="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center brutal-card-hover">
               <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Status</p>
               <p id="profileStatStatus" class="mt-1 text-sm font-black text-accent uppercase">Active</p>
             </div>
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center brutal-card-hover">
               <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Course</p>
               <p id="profileStatCourse" class="mt-1 text-sm font-black text-accent truncate">Web Dev</p>
             </div>
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center brutal-card-hover">
               <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Enrolled</p>
               <p id="profileStatEnrolled" class="mt-1 text-sm font-black text-primary-text">Nov 2026</p>
             </div>
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-3 text-center brutal-card-hover">
               <p class="text-[10px] uppercase tracking-wider text-secondary-text font-bold">Classmates</p>
               <p id="profileStatEnrolledCount" class="mt-1 text-sm font-black text-primary-text">0</p>
             </div>
@@ -979,7 +1081,7 @@
           <!-- 2-Column Info Grid -->
           <div class="mb-6 grid md:grid-cols-2 gap-4">
             <!-- Contact Card -->
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4 brutal-shadow-border">
               <h4 class="text-xs uppercase tracking-wider text-secondary-text font-black border-b border-border-color pb-2 mb-3">
                 Contact Details
               </h4>
@@ -988,7 +1090,7 @@
                   <span class="block text-[10px] uppercase tracking-wider text-secondary-text font-bold">Email Address</span>
                   <div class="mt-0.5 flex items-center justify-between gap-2">
                     <a id="profileEmailLink" href="#" class="text-sm font-bold text-accent hover:underline break-all">student@example.com</a>
-                    <button id="copyProfileEmailBtn" type="button" class="text-xs text-secondary-text hover:text-accent font-bold" title="Copy Email">Copy</button>
+                    <button id="copyProfileEmailBtn" type="button" class="text-xs px-2 py-0.5 border border-border-color rounded-xs text-secondary-text hover:text-accent brutal-btn font-bold" title="Copy Email">Copy</button>
                   </div>
                 </div>
                 <div>
@@ -1003,7 +1105,7 @@
             </div>
 
             <!-- Course Card -->
-            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4">
+            <div class="rounded-sm border-2 border-border-color bg-primary-bg p-4 brutal-shadow-border">
               <h4 class="text-xs uppercase tracking-wider text-secondary-text font-black border-b border-border-color pb-2 mb-3">
                 Course Information
               </h4>
@@ -1025,7 +1127,7 @@
           </div>
 
           <!-- Interactive Admin Remarks & Status Section -->
-          <div class="rounded-sm border-2 border-accent bg-primary-bg p-5">
+          <div class="rounded-sm border-2 border-accent bg-primary-bg p-5 brutal-shadow-accent">
             <div class="mb-3 flex items-center justify-between">
               <h4 class="text-xs uppercase tracking-wider text-accent font-black">
                 📝 Admin Remarks &amp; Student Status
@@ -1062,7 +1164,7 @@
               <button
                 id="saveProfileNotesBtn"
                 type="button"
-                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200"
+                class="rounded-sm border-2 border-accent bg-accent px-4 py-2 text-xs font-bold uppercase text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent"
               >
                 Save Remarks &amp; Status
               </button>
@@ -1074,7 +1176,7 @@
             <button
               id="closeProfileModalBottomBtn"
               type="button"
-              class="w-full sm:w-auto rounded-sm border-2 border-border-color px-6 py-2.5 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+              class="w-full sm:w-auto rounded-sm border-2 border-border-color px-6 py-2.5 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             >
               Close
             </button>
@@ -1084,8 +1186,8 @@
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm shadow-lg min-w-[300px]"></div>
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm min-w-[300px] brutal-shadow-toast"></div>
 
-    <script src="./app.js?v=5"></script>
+    <script src="./app.js?v=6"></script>
   </body>
 </html>
