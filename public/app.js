@@ -238,9 +238,9 @@ function renderStudents(students) {
       <td class="px-4 py-4 text-secondary-text">${escapeHtml(student.course)}</td>
       <td class="px-4 py-4 text-secondary-text">${student.age}</td>
       <td class="px-4 py-4">
-        <div class="flex justify-end gap-2">
+        <div class="flex justify-end gap-2.5">
           <button
-            class="rounded-sm border-2 border-border-color px-3 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             type="button"
             data-action="view"
             data-id="${student._id}"
@@ -249,7 +249,7 @@ function renderStudents(students) {
             View
           </button>
           <button
-            class="rounded-sm border-2 border-border-color px-3 py-2 font-bold uppercase text-xs text-primary-text hover:border-accent hover:bg-accent hover:text-primary-bg transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 font-bold uppercase text-xs text-primary-text brutal-btn hover:border-accent hover:bg-accent hover:text-primary-bg"
             type="button"
             data-action="edit"
             data-id="${student._id}"
@@ -257,7 +257,7 @@ function renderStudents(students) {
             Edit
           </button>
           <button
-            class="rounded-sm border-2 border-error px-3 py-2 font-bold uppercase text-xs text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+            class="rounded-sm border-2 border-error px-3 py-1.5 font-bold uppercase text-xs text-error brutal-btn-error hover:bg-error hover:text-primary-bg"
             type="button"
             data-action="delete"
             data-id="${student._id}"
@@ -1497,13 +1497,13 @@ function renderCoursesView() {
         </span>
       </td>
       <td class="px-4 py-4 text-right">
-        <div class="flex justify-end gap-2">
+        <div class="flex justify-end gap-2.5">
           <button 
             type="button"
             data-action="view-students"
             data-name="${escapeHtml(course.name)}"
             onclick="viewCourseStudents('${escapeHtml(course.name)}')"
-            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text brutal-btn hover:border-accent hover:text-accent"
           >
             View Students
           </button>
@@ -1512,7 +1512,7 @@ function renderCoursesView() {
             data-action="edit-course"
             data-id="${course._id}"
             onclick="editCourse('${course._id}')"
-            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text hover:border-accent hover:text-accent transition-colors duration-200"
+            class="rounded-sm border-2 border-border-color px-3 py-1 text-xs font-bold uppercase text-primary-text brutal-btn hover:border-accent hover:text-accent"
           >
             Edit
           </button>
@@ -1521,7 +1521,7 @@ function renderCoursesView() {
             data-action="delete-course"
             data-id="${course._id}"
             onclick="deleteCourse('${course._id}')"
-            class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error hover:bg-error hover:text-primary-bg transition-colors duration-200"
+            class="rounded-sm border-2 border-error px-3 py-1 text-xs font-bold uppercase text-error brutal-btn-error hover:bg-error hover:text-primary-bg"
           >
             Delete
           </button>
@@ -1921,7 +1921,7 @@ function renderNotificationsView() {
               data-action="mark-read"
               data-id="${notification._id}"
               onclick="markNotificationAsRead('${notification._id}')"
-              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg hover:bg-transparent hover:text-accent transition-colors duration-200 cursor-pointer"
+              class="rounded-sm border-2 border-accent bg-accent px-3 py-1.5 text-xs font-bold uppercase text-primary-bg brutal-btn-accent hover:bg-transparent hover:text-accent cursor-pointer"
             >
               Mark Read
             </button>
@@ -1931,7 +1931,7 @@ function renderNotificationsView() {
             data-action="delete-notification"
             data-id="${notification._id}"
             onclick="deleteNotification('${notification._id}')"
-            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text hover:border-error hover:text-error transition-colors duration-200 cursor-pointer"
+            class="rounded-sm border-2 border-border-color px-3 py-1.5 text-xs font-bold uppercase text-secondary-text brutal-btn hover:border-error hover:text-error cursor-pointer"
             title="Delete notification"
           >
             Delete
