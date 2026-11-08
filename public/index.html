@@ -189,16 +189,47 @@
     <!-- Main Content -->
     <main class="md:ml-64 min-h-screen">
       <!-- Header -->
-      <header class="border-b-2 border-border-color bg-secondary-bg px-6 py-4">
+      <header class="border-b-2 border-border-color bg-secondary-bg px-6 py-3.5">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-xs uppercase tracking-wider text-secondary-text font-bold">Student Management System</p>
-            <h2 class="mt-1 text-sm font-medium text-primary-text">Welcome back</h2>
+            <h2 class="mt-0.5 text-sm font-semibold text-primary-text">Welcome back</h2>
           </div>
           <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-sm border-2 border-accent bg-accent flex items-center justify-center font-black text-primary-bg">
-              A
-            </div>
+            <!-- Clickable Notification Bell with Unread Badge -->
+            <button
+              id="headerNotificationBtn"
+              type="button"
+              class="relative rounded-sm border-2 border-border-color bg-primary-bg p-2 text-primary-text brutal-btn hover:border-accent hover:text-accent transition-colors"
+              title="Notifications"
+            >
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+              <span id="headerNotificationBadge" class="hidden absolute -top-1.5 -right-1.5 rounded-full bg-error px-1.5 py-0.2 text-[10px] font-black text-white border-2 border-secondary-bg">0</span>
+            </button>
+
+            <!-- Administrator Profile Button -->
+            <button
+              id="adminProfileBtn"
+              type="button"
+              class="rounded-sm border-2 border-border-color bg-primary-bg px-3 py-1.5 text-left brutal-btn hover:border-accent transition-colors flex items-center gap-2.5"
+              title="Administrator Profile (Super Admin)"
+            >
+              <div class="h-7 w-7 rounded-full border-2 border-accent bg-accent flex items-center justify-center font-black text-primary-bg text-xs select-none shadow-sm flex-shrink-0">
+                🛡️
+              </div>
+              <div class="hidden sm:block text-left leading-tight">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-black uppercase tracking-tight text-primary-text">Administrator</span>
+                  <span class="rounded-xs border border-accent bg-accent bg-opacity-20 px-1 py-0.2 text-[9px] font-black uppercase text-accent">Admin</span>
+                </div>
+                <div class="flex items-center gap-1 mt-0.5">
+                  <span class="h-1.5 w-1.5 rounded-full bg-success inline-block"></span>
+                  <span class="text-[10px] uppercase font-bold text-secondary-text tracking-wider">Super Admin</span>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </header>
@@ -1188,6 +1219,6 @@
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-6 right-6 z-50 hidden rounded-sm border-2 px-6 py-4 font-bold text-sm min-w-[300px] brutal-shadow-toast"></div>
 
-    <script src="./app.js?v=6"></script>
+    <script src="./app.js?v=7"></script>
   </body>
 </html>

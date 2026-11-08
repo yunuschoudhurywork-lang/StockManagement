@@ -2054,6 +2054,18 @@ async function updateNotificationBadge(cachedNotifications = null) {
         badge.classList.add('hidden');
       }
     }
+
+    // Header notification bell badge
+    const headerBadge = document.getElementById('headerNotificationBadge');
+    if (headerBadge) {
+      if (unreadCount > 0) {
+        headerBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        headerBadge.classList.remove('hidden');
+      } else {
+        headerBadge.textContent = '0';
+        headerBadge.classList.add('hidden');
+      }
+    }
   } catch (error) {
     console.error('Error updating notification badge:', error);
   }
@@ -2125,6 +2137,31 @@ if (courseElements.coursesTableBody) {
       if (id) await deleteCourse(id);
       return;
     }
+  });
+}
+
+// Header Quick Action Event Listeners
+const headerNotificationBtn = document.getElementById('headerNotificationBtn');
+if (headerNotificationBtn) {
+  headerNotificationBtn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(l => {
+      const isNotif = l.querySelector('span')?.textContent.toLowerCase() === 'notifications';
+      if (isNotif) {
+        l.classList.add('active', 'bg-accent', 'border-accent', 'text-primary-bg');
+        l.classList.remove('border-border-color', 'text-primary-text');
+      } else {
+        l.classList.remove('active', 'bg-accent', 'border-accent', 'text-primary-bg');
+        l.classList.add('border-border-color', 'text-primary-text');
+      }
+    });
+    showNotificationsView();
+  });
+}
+
+const adminProfileBtn = document.getElementById('adminProfileBtn');
+if (adminProfileBtn) {
+  adminProfileBtn.addEventListener('click', () => {
+    showToast('Administrator Session • Super Admin Active', 'success');
   });
 }
 
